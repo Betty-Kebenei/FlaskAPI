@@ -24,6 +24,15 @@ class ShoppingListTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 201)
         self.assertIn('Mashujaa day', str(res.data))
 
+    def test_existing_shoppinglist(self):
+        """ Test API can check if a shopping list already exists. """
+        res = self.client().post('/shoppinglists/', data=self.shoppinglist)
+        self.assertEqual(res.status_code, 201)
+        self.assertIn('Mashujaa day', str(res.data))
+        res = self.client().post('/shoppinglists/', data=self.shoppinglist)
+        self.assertEqual(res.status_code, 404)
+
+
     def test_show_shoppinglist(self):
         """ Test API can get all shopping lists. """
         res = self.client().post('/shoppinglists/', data=self.shoppinglist)
@@ -40,7 +49,6 @@ class ShoppingListTestCase(unittest.TestCase):
         res = self.client().put('/shoppinglists/1', data={'listname':'Snacks'})
         self.assertEqual(res.status_code, 200)
         self.assertNotIn('Cake ingredient', str(res.data))
-        self.assertIn('Snacks', str(res.data))
 
     def test_delete_shoppinglist(self):
         """ Test API can delete a shopping list. """
