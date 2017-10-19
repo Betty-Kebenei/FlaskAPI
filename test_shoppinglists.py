@@ -1,0 +1,64 @@
+#test_shoppinglists.py
+
+import unittest
+import os
+import json
+from app import create_app, DB
+from app.models import ShoppingList
+
+class ShoppingListTestCase(unittest.TestCase):
+    """ Class with shopping list tests . """
+
+    def setUp(self):
+        """ A method that is called before each test. """
+        """ Pass testing configuration and initializes the app. """
+        self.app = create_app(config_name="testing")
+        self.client = self.app.test_client
+        self.shoppinglist = {'listname':'Mashujaa day'}
+        with self.app.app_context():
+            DB.create_all()
+
+    def test_shoppinglist_creation(self):
+        """ Test API can create a shopping list. """
+        res = self.client().post('/shoppinglists/', data=self.shoppinglist)
+        self.assertEqual(res.status_code, 201)
+        self.assertIn('Mashujaa day', str(res.data))
+
+    def test_show_shoppinglist(self):
+        """ Test API can get all shopping lists. """
+        res = self.client().post('/shoppinglists/', data=self.shoppinglist)
+        self.assertEqual(res.status_code, 201)
+        res = self.client().get('/shoppinglists/')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('Mashujaa day', str(res.data))
+
+    def test_edit_shoppinglist(self):
+        """ Test API can edit a shopping list. """
+        res = self.client().post('/shoppinglists/', data={'listname':'Cake ingredient'})
+        self.assertEqual(res.status_code, 201)
+        self.assertIn('Cake ingredient', str(res.data))
+        res = self.client().put('/shoppinglists/1', data={'listname':'Snacks'})
+        self.assertEqual(res.status_code, 200)
+        self.assertNotIn('Cake ingredient', str(res.data))
+        self.assertIn('Snacks', str(res.data))
+
+    def test_delete_shoppinglist(self):
+        """ Test API can delete a shopping list. """
+        res = self.client().post('/shoppinglists/', data={'listname':'Snacks'})
+        self.assertEqual(res.status_code, 201)
+        self.assertIn('Snacks', str(res.data))
+        res = self.client().delete('/shoppinglists/1')
+        self.assertEqual(res.status_code, 200)
+        res = self.client().delete('/shoppinglists/1')
+        self.assertNotEqual(res.status_code, 200)
+        self.assertNotIn('Snacks', str(res.data))
+
+    def tearDown(self):
+        """ A method that is called after each test. """
+        """ Undoing what setUP did. """
+        with self.app.app_context():
+            DB.session.remove()
+            DB.drop_all()
+
+if __name__ == '__main__':
+    unittest.main()
