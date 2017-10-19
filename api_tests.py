@@ -1,9 +1,9 @@
 import unittest
-from flask_testing import TestCase
+# from flask_testing import TestCase
 from app import create_app, DB
 from app.models import User, ShoppingList, ShoppingItems
 
-class TestBase(TestCase):
+class TestBase(Unittest.TestCase):
     """Testing base class where configurations are set."""
     def create_app(self):
         """A method for passing testing configurations."""
