@@ -1,7 +1,6 @@
 #test_shoppingitems.py
 
 import unittest
-import os
 import json
 from app import create_app, DB
 from app.models import ShoppingItems
@@ -15,7 +14,6 @@ class ShoppingitemsTestCase(unittest.TestCase):
         """ Pass testing configuration and initializes the app. """
         self.app = create_app(config_name="testing")
         self.client = self.app.test_client
-        self.shoppinglist = {'listname':'Visiting mum'}
         self.shoppingitem = {
             'itemname':'Wheat Flour',
             'quantity': 12,
@@ -31,10 +29,50 @@ class ShoppingitemsTestCase(unittest.TestCase):
             DB.session.remove()
             DB.drop_all()
     
+    
+    #### HELPER METHODS #### 
+    def user_registration(
+            self,
+            firstname="Betty",
+            lastname="Kebenei",
+            username="Berry",
+            email="berry@berry.com",
+            password="A1234a"):
+        """ User registration helper method."""
+        data = {
+            'firstname':firstname,
+            'lastname':lastname,
+            'username' :username,
+            'email':email,
+            'password':password
+        }
+        return self.client().post('/auth/register', data=data)
+
+    def user_logsin(self, email="berry@berry.com", password="A1234a"):
+        """User logging in helper method."""
+        data = {
+            'email': email,
+            'password': password
+        }
+        return self.client().post('/auth/login', data=data)
+
+    def current_list(self, listname="Visiting mum"):
+        """Shopping list creation helper method."""
+        data = {'listname':listname}
+        self.user_registration()
+        result = self.user_logsin()
+        access_token = json.loads(result.data.decode())['access_token']
+        res = self.client().post(
+            '/home/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=data)
+        return res
+
+    #### END OF HELPER METHODS ####
+
     def test_shoppingitem_creation(self):
         """ Test API can create a shopping item in a shopping list. """
-        res = self.client().post('/home/shoppinglists/', data=self.shoppinglist)
-        self.assertEqual(res.status_code, 201)
+        self.current_list()
         res = self.client().post('/home/shoppinglists/1/shoppingitems/', data=self.shoppingitem)
         self.assertEqual(res.status_code, 201)
         self.assertIn('Wheat Flour', str(res.data))
@@ -47,8 +85,7 @@ class ShoppingitemsTestCase(unittest.TestCase):
 
     def test_duplicate_creation(self):
         """ Test API cannot create items with same name in one a shopping list. """
-        res = self.client().post('/home/shoppinglists/', data=self.shoppinglist)
-        self.assertEqual(res.status_code, 201)
+        self.current_list()
         res = self.client().post('/home/shoppinglists/1/shoppingitems/', data=self.shoppingitem)
         self.assertEqual(res.status_code, 201)
         self.assertIn('Wheat Flour', str(res.data))
@@ -61,8 +98,7 @@ class ShoppingitemsTestCase(unittest.TestCase):
 
     def test_multiple_creations(self):
         """ Test API can create many items in one a shopping list. """
-        res = self.client().post('/home/shoppinglists/', data=self.shoppinglist)
-        self.assertEqual(res.status_code, 201)
+        self.current_list()
         res = self.client().post('/home/shoppinglists/1/shoppingitems/', data=self.shoppingitem)
         self.assertEqual(res.status_code, 201)
         self.assertIn('Wheat Flour', str(res.data))
@@ -76,8 +112,7 @@ class ShoppingitemsTestCase(unittest.TestCase):
 
     def test_get_shoppingitems(self):
         """ Test API can get all shopping items in a shopping list. """
-        res = self.client().post('/home/shoppinglists/', data=self.shoppinglist)
-        self.assertEqual(res.status_code, 201)
+        self.current_list()
         res = self.client().post('/home/shoppinglists/1/shoppingitems/', data=self.shoppingitem)
         self.assertEqual(res.status_code, 201)
         res = self.client().get('/home/shoppinglists/1/shoppingitems/')
@@ -86,8 +121,7 @@ class ShoppingitemsTestCase(unittest.TestCase):
 
     def test_edit_shoppingitem(self):
         """ Test API can edit a shopping item in a shopping list. """
-        res = self.client().post('/home/shoppinglists/', data=self.shoppinglist)
-        self.assertEqual(res.status_code, 201)
+        self.current_list()
         res = self.client().post('/home/shoppinglists/1/shoppingitems/', data=self.shoppingitem)
         self.assertEqual(res.status_code, 201)
         self.assertIn('Wheat Flour', str(res.data))
@@ -101,8 +135,7 @@ class ShoppingitemsTestCase(unittest.TestCase):
 
     def test_delete_shoppingitem(self):
         """ Test API can delete a shopping item in a shopping list. """
-        res = self.client().post('/home/shoppinglists/', data=self.shoppinglist)
-        self.assertEqual(res.status_code, 201)
+        self.current_list()
         res = self.client().post('/home/shoppinglists/1/shoppingitems/', data=self.shoppingitem)
         self.assertEqual(res.status_code, 201)
         self.assertIn('Wheat Flour', str(res.data))

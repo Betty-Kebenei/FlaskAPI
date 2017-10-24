@@ -6,7 +6,7 @@ class Config(object):
 
     DEBUG = True
     TESTING = False
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:adams@localhost/api'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:adams@localhost/flaskapi'
 
 
 class DevelopmentConfig(Config):

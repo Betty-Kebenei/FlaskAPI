@@ -1,7 +1,7 @@
-from app import DB, LOGIN_MANAGER
-
-#passlibs is a package dedicated to password hashing.pip
-from passlib.apps import custom_app_context as pwd_context
+from app import DB, create_app
+from flask_bcrypt import Bcrypt
+import jwt
+from datetime import datetime, timedelta
 
 class User(DB.Model):
     """Create a users table."""
@@ -13,27 +13,66 @@ class User(DB.Model):
     lastname = DB.Column(DB.String(50))
     username = DB.Column(DB.String(50), unique=True)
     email = DB.Column(DB.String(50), unique=True)
-    password_hash = DB.Column(DB.String(128))
-    # shopping_list_id = DB.Column(DB.Integer, DB.ForeignKey('shoppinglists.list_id'))
+    password = DB.Column(DB.String(128))
+    shoppinglists = DB.relationship('ShoppingList', backref='ShoppingList.list_id', cascade="all, delete-orphan")
 
-    def hash_password(self, password):
-        """Hash password during signup."""
+    def __init__(self, firstname, lastname, username, email, password):
+        """ initilization """
+        self.firstname = firstname
+        self.lastname = lastname
+        self.username = username
+        self.email = email
+        self.password = Bcrypt().generate_password_hash(password)
 
-        self.password_hash = pwd_context.encrypt(password)
 
     def verify_password(self, password):
         """Validate password during signin."""
 
-        return pwd_context.verify(password, self.password_hash)
+        return Bcrypt().check_password_hash(self.password, password)
+    
+    def save(self):
+        """ stores user to database """
+        DB.session.add(self)
+        DB.session.commit()
+
+    def delete(self):
+        """ deletes user """
+        DB.session.delete(self)
+        DB.session.commit()
+
+    def encode_auth_token(self, user_id):
+        """ Generating an authentication token and returns a string error is expection occurs"""
+
+        app = create_app(config_name='development')
+        try:
+            payload = {
+                'sub': user_id,
+                'iat': datetime.utcnow(),
+                'exp': datetime.utcnow() + timedelta(minutes=2)
+            }
+            return jwt.encode(
+                payload,
+                app.config.get('SECRET_KEY'),
+                algorithm='HS256'
+            )
+        except Exception as e:
+            return e
+    
+    @staticmethod
+    def decode_auth_token(auth_token):
+        """Decodes the authentication token"""
+
+        app = create_app(config_name='development')
+        try:
+            payload = jwt.decode(auth_token, app.config.get('SECRET_KEY'))
+            return payload['sub']
+        except jwt.ExpiredSignatureError:
+            return 'Sorry your token expired, please log in again!'
+        except jwt.InvalidTokenError:
+            return 'Token invalid, please login again.'
 
     def __repr__(self):
-        return "<ShoppingList: {}>".format(self.username)
-
-@LOGIN_MANAGER.user_loader
-def load_user(user_id):
-    """Set up user_loader."""
-
-    return User.query.get(int(user_id))
+        return "<User: {}>".format(self.username)
 
 class ShoppingList(DB.Model):
     """Create a shopping list table"""
@@ -42,12 +81,13 @@ class ShoppingList(DB.Model):
 
     list_id = DB.Column(DB.Integer, primary_key=True)
     listname = DB.Column(DB.String(50), unique=True)
-    # shopping_item_id = DB.Column(DB.Integer, DB.ForeignKey('shoppingitems.item_id'))
-    # users = DB.relationship('User', backref='ShoppingList', lazy='dynamic')
+    shoppingitems = DB.relationship('ShoppingItems', backref='ShoppingItems.item_id', cascade="all, delete-orphan")
+    created_by = DB.Column(DB.Integer, DB.ForeignKey(User.user_id))
     
-    def __init__(self, listname):
+    def __init__(self, listname, created_by):
         """ initilization """
         self.listname = listname
+        self.created_by = created_by
 
     def save(self):
         """ stores list to database """
@@ -76,13 +116,15 @@ class ShoppingItems(DB.Model):
     itemname = DB.Column(DB.String(50), unique=True)
     quantity = DB.Column(DB.Integer)
     price = DB.Column(DB.Integer)
+    item_for_list = DB.Column(DB.Integer, DB.ForeignKey(ShoppingList.list_id))
     # shoppinglists = DB.relationship('ShoppingList', backref='shoppingitems', lazy='dynamic')
 
-    def __init__(self, itemname, quantity, price):
+    def __init__(self, itemname, quantity, price, item_for_list):
         """ initilization """
         self.itemname = itemname
         self.quantity = quantity
         self.price = price
+        self.item_for_list = item_for_list
 
     def save(self):
         """ stores item to database """

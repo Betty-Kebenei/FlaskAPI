@@ -2,39 +2,53 @@
 from . import home
 from . import home as home_blueprint
 from flask import request, jsonify, abort
-from app.models import ShoppingList, ShoppingItems
+from app.models import User, ShoppingList, ShoppingItems
 
 @home.route('/home/shoppinglists/', methods=['POST', 'GET'])
 def shoppinglists():
     """ API that GET and POST shopping lists. """
 
-    if request.method == "POST":
-        listname = str(request.data.get('listname'))
-        shoppinglist = ShoppingList.query.filter_by(listname=listname).first()
-        if not shoppinglist:
-            if listname:
-                shoppinglist = ShoppingList(listname=listname)
-                shoppinglist.save()
-                response = jsonify({
-                    'list_id': shoppinglist.list_id,
-                    'listname': shoppinglist.listname
-                    })
-                return {'message':'shoppinglist with name {}\
-                                    successfully created'.format(shoppinglist.listname)}, 201
+    auth_header = request.headers.get('Authorization')
+    print(type(auth_header))
+
+    token = str(auth_header).split(" ")
+    access_token = token["access_token"]
+    print(access_token)
+    print(type(access_token))
+    if access_token:
+        user_id = User.decode_auth_token(access_token)
+        if not isinstance(user_id, str):
+            if request.method == "POST":
+                listname = str(request.data["listname"])
+                shoppinglist = ShoppingList.query.filter_by(listname=listname).first()
+                if not shoppinglist:
+                    shoppinglist = ShoppingList(listname=listname, created_by=user_id)
+                    shoppinglist.save()
+                    response = jsonify({
+                        'list_id': shoppinglist.list_id,
+                        'listname': shoppinglist.listname,
+                        'created_by': shoppinglist.created_by
+                        })
+                    return {'message':'shoppinglist with name {}\
+                                        successfully created'.format(shoppinglist.listname)}, 201
+                else:
+                    return {'message': 'shoppinglist with that name {} already exists.'.format(shoppinglist.listname)}, 404
+            else:
+                shoppinglists = ShoppingList.get_all()
+                results = []
+                for shoppinglist in shoppinglists:
+                    obj = {
+                        'list_id': shoppinglist.list_id,
+                        'listname': shoppinglist.listname
+                        }
+                    results.append(obj)
+                response = jsonify(results)
+                response.status_code = 200
+                return response
         else:
-            return {'message': 'shoppinglist with that name {} already exists.'.format(shoppinglist.listname)}, 404
-    else:
-        shoppinglists = ShoppingList.get_all()
-        results = []
-        for shoppinglist in shoppinglists:
-            obj = {
-                'list_id': shoppinglist.list_id,
-                'listname': shoppinglist.listname
-                }
-            results.append(obj)
-        response = jsonify(results)
-        response.status_code = 200
-        return response
+            response = jsonify({'message':user_id})
+            response.status_code = 401
+            return response
 
 @home.route('/home/shoppinglists/<list_id>', methods=['GET', 'PUT', 'DELETE'])
 def shoppinglists_management(list_id):
@@ -60,7 +74,7 @@ def shoppinglists_management(list_id):
             return {'message':'shoppinglist with id {} successfully edited. '.format(shoppinglist.list_id)}, 200
         else:
             shoppinglist.delete()
-            return {'message':'{} shoppinglist successfully deleted'.format(shoppinglist.listname)}, 200
+            return {'message':'Shoppinglist with id: {} successfully deleted'.format(shoppinglist.list_id)}, 200
     else:
         abort(404)
 
@@ -76,19 +90,21 @@ def shoppingitems(list_id):
             price = int(request.data.get('price'))
             shoppingitem = ShoppingItems.query.filter_by(itemname=itemname).first()
             if not shoppingitem:
-                if itemname:
-                    shoppingitem = ShoppingItems(
-                        itemname=itemname,
-                        quantity=quantity,
-                        price=price)
-                    shoppingitem.save()
-                    response = jsonify({
-                        'item_id' : shoppingitem.item_id,
-                        'itemname' : shoppingitem.itemname,
-                        'quantity' : shoppingitem.quantity,
-                        'price' : shoppingitem.price
-                        })
-                    return {'message':'shoppingitem with itemname {} successfully created. '.format(shoppingitem.itemname)}, 201
+                shoppingitem = ShoppingItems(
+                    itemname=itemname,
+                    quantity=quantity,
+                    price=price,
+                    item_for_list=list_id
+                    )
+                shoppingitem.save()
+                response = jsonify({
+                    'item_id' : shoppingitem.item_id,
+                    'itemname' : shoppingitem.itemname,
+                    'quantity' : shoppingitem.quantity,
+                    'price' : shoppingitem.price
+                    # 'item_for_list': list_id
+                    })
+                return {'message':'shoppingitem with itemname {} successfully created. '.format(shoppingitem.itemname)}, 201
             else:
                 return {'message': 'shoppingitem with that name {}\
                                     already exists in this shopping list.'
