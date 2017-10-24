@@ -9,12 +9,8 @@ def shoppinglists():
     """ API that GET and POST shopping lists. """
 
     auth_header = request.headers.get('Authorization')
-    print(type(auth_header))
-
     token = str(auth_header).split(" ")
-    access_token = token["access_token"]
-    print(access_token)
-    print(type(access_token))
+    access_token = token[1]
     if access_token:
         user_id = User.decode_auth_token(access_token)
         if not isinstance(user_id, str):
