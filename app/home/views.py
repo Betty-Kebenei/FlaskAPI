@@ -9,7 +9,7 @@ def shoppinglists():
     """ API that GET and POST shopping lists. """
 
     auth_header = request.headers.get('Authorization')
-    token = str(auth_header).split(" ")
+    token = auth_header.split(" ")
     access_token = token[1]
     if access_token:
         user_id = User.decode_auth_token(access_token)
