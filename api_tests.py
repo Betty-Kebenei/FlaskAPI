@@ -1,5 +1,4 @@
 import unittest
-# from flask_testing import TestCase
 from app import create_app, DB
 from app.models import User, ShoppingList, ShoppingItems
 
