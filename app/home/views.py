@@ -1,8 +1,12 @@
 #  /app/home/views.py
-from . import home
-from . import home as home_blueprint
+import json
+import requests
+
 from flask import request, jsonify, abort
 from app.models import User, ShoppingList, ShoppingItems
+
+from . import home
+from . import home as home_blueprint
 
 @home.route('/home/shoppinglists/', methods=['POST', 'GET'])
 def shoppinglists():
@@ -28,11 +32,18 @@ def shoppinglists():
                     return {'message':'shoppinglist with name {}\
                                         successfully created'.format(shoppinglist.listname)}, 201
                 else:
-                    return {'message': 'shoppinglist with that name {} already exists.'.format(shoppinglist.listname)}, 404
+                    return {'message':
+                            'shoppinglist with that name {} already exists.'
+                            .format(shoppinglist.listname)}, 404
             else:
-                shoppinglists = ShoppingList.get_all()
                 results = []
-                for shoppinglist in shoppinglists:
+                q = request.args.get('q')
+                if q:
+                    shopping_lists = ShoppingList.query.filter_by(
+                        created_by=user_id).filter(ShoppingList.listname.like('%{0}%'.format(q)))
+                else:
+                    shopping_lists = ShoppingList.query.filter_by(created_by=user_id)
+                for shoppinglist in shopping_lists:
                     obj = {
                         'list_id': shoppinglist.list_id,
                         'listname': shoppinglist.listname
@@ -97,18 +108,24 @@ def shoppingitems(list_id):
                     'item_id' : shoppingitem.item_id,
                     'itemname' : shoppingitem.itemname,
                     'quantity' : shoppingitem.quantity,
-                    'price' : shoppingitem.price
-                    # 'item_for_list': list_id
+                    'price' : shoppingitem.price,
+                    'item_for_list': shoppingitem.item_for_list
                     })
                 return {'message':'shoppingitem with itemname {} successfully created. '.format(shoppingitem.itemname)}, 201
             else:
                 return {'message': 'shoppingitem with that name {}\
                                     already exists in this shopping list.'
                                     .format(shoppingitem.itemname)}, 404
-        else:
-            shoppingitems = ShoppingItems.get_all()
+        else: 
             results = []
-            for shoppingitem in shoppingitems:
+            q = request.args.get('q')
+            if q:
+                shopping_items = ShoppingItems.query.filter_by(
+                    item_for_list=list_id).filter(ShoppingItems.itemname.like('%{0}%'.format(q)))
+            else:
+                shopping_items = ShoppingItems.query.filter_by(item_for_list=list_id)
+
+            for shoppingitem in shopping_items:
                 obj = {
                     'item_id' : shoppingitem.item_id,
                     'itemname' : shoppingitem.itemname,
