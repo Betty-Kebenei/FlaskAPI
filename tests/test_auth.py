@@ -3,9 +3,8 @@
 import unittest
 import json
 from app import create_app, DB
-from app.models import User
 
-class UserTestCase(unittest.TestCase):
+class AuthenticationTestCase(unittest.TestCase):
     """ Class with authentication tests . """
 
     def setUp(self):

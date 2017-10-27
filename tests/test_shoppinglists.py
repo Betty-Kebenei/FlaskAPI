@@ -3,8 +3,6 @@
 import unittest
 import json
 from app import create_app, DB
-from app.models import ShoppingList
-from app.home import views
 
 class ShoppingListTestCase(unittest.TestCase):
     """ Class with shopping list tests . """
