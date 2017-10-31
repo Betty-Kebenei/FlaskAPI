@@ -2,16 +2,22 @@
 import json
 import requests
 
-from flask import request, jsonify, abort
+from flask import request, jsonify, abort, url_for
 from app.models import User, ShoppingList, ShoppingItems
 
 from . import home
 from . import home as home_blueprint
 
-@home.route('/home/shoppinglists/', methods=['POST', 'GET'])
+@home.route('/home/shoppinglists', methods=['POST', 'GET'])
 def shoppinglists():
     """ API that GET and POST shopping lists. """
 
+    #Pagination arguments: Setting page to 1, then min_per_page to 20 and max_per_page to 100
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', 5, type=int)
+    limit = limit if limit <= 20 else 20
+
+    #Token retrival
     auth_header = request.headers.get('Authorization')
     token = auth_header.split(" ")
     access_token = token[1]
@@ -20,21 +26,24 @@ def shoppinglists():
         if not isinstance(user_id, str):
             if request.method == "POST":
                 listname = str(request.data["listname"])
-                shoppinglist = ShoppingList.query.filter_by(listname=listname).first()
-                if not shoppinglist:
-                    shoppinglist = ShoppingList(listname=listname, created_by=user_id)
-                    shoppinglist.save()
-                    response = jsonify({
-                        'list_id': shoppinglist.list_id,
-                        'listname': shoppinglist.listname,
-                        'created_by': shoppinglist.created_by
-                        })
-                    return {'message':'shoppinglist with name {}\
-                                        successfully created'.format(shoppinglist.listname)}, 201
+                if not listname:
+                    return {'mesaage': 'No input provided'}, 400
                 else:
-                    return {'message':
-                            'shoppinglist with that name {} already exists.'
-                            .format(shoppinglist.listname)}, 404
+                    shoppinglist = ShoppingList.query.filter_by(listname=listname).first()
+                    if not shoppinglist:
+                        shoppinglist = ShoppingList(listname=listname, created_by=user_id)
+                        shoppinglist.save()
+                        response = jsonify({
+                            'list_id': shoppinglist.list_id,
+                            'listname': shoppinglist.listname,
+                            'created_by': shoppinglist.created_by
+                            })
+                        return {'message':'shoppinglist with name {}\
+                                            successfully created'.format(shoppinglist.listname)}, 201
+                    else:
+                        return {'message':
+                                'shoppinglist with that name {} already exists.'
+                                .format(shoppinglist.listname)}, 404
             else:
                 results = []
                 q = request.args.get('q')
@@ -43,13 +52,29 @@ def shoppinglists():
                         created_by=user_id).filter(ShoppingList.listname.like('%{0}%'.format(q)))
                 else:
                     shopping_lists = ShoppingList.query.filter_by(created_by=user_id)
-                for shoppinglist in shopping_lists:
+                
+                pagination = shopping_lists.paginate(page, per_page=limit, error_out=False)
+                shop_lists = pagination.items
+                if pagination.has_prev:
+                    prev = url_for('home.shoppinglists', page=page-1, limit= limit, _external=True)
+                else:
+                    prev = None
+                if pagination.has_next:
+                    next = url_for('home.shoppinglists', page=page+1, limit=limit, _external=True)
+                else:
+                    next = None
+                for shoppinglist in shop_lists:
                     obj = {
                         'list_id': shoppinglist.list_id,
                         'listname': shoppinglist.listname
                         }
                     results.append(obj)
-                response = jsonify(results)
+                response = jsonify({
+                    'shoppinglists': results,
+                    'prev': prev,
+                    'next': next,
+                    'count': pagination.total
+                    })
                 response.status_code = 200
                 return response
         else:
@@ -85,10 +110,16 @@ def shoppinglists_management(list_id):
     else:
         abort(404)
 
-@home.route('/home/shoppinglists/<list_id>/shoppingitems/', methods=['POST', 'GET'])
+@home.route('/home/shoppinglists/<list_id>/shoppingitems', methods=['POST', 'GET'])
 def shoppingitems(list_id):
     """ API that GET and POST items from/to a shopping list. """
 
+    #Pagination arguments: Setting page to 1, then min_per_page to 20 and max_per_page to 100
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', 5, type=int)
+    limit = limit if limit <= 20 else 20
+
+    #Get list to work on by id
     shoppinglist = ShoppingList.query.filter_by(list_id=list_id).first()
     if shoppinglist:
         if request.method == "POST":
@@ -125,17 +156,36 @@ def shoppingitems(list_id):
             else:
                 shopping_items = ShoppingItems.query.filter_by(item_for_list=list_id)
 
-            for shoppingitem in shopping_items:
-                obj = {
-                    'item_id' : shoppingitem.item_id,
-                    'itemname' : shoppingitem.itemname,
-                    'quantity' : shoppingitem.quantity,
-                    'price' : shoppingitem.price
-                    }
-                results.append(obj)
-            response = jsonify(results)
-            response.status_code = 200
-            return response
+            if shopping_items:
+                pagination = shopping_items.paginate(page, per_page=limit, error_out=False)
+                shop_items = pagination.items
+                if pagination.has_prev:
+                    prev = url_for('home.shoppingitems', list_id=list_id, page=page-1, limit= limit, _external=True)
+                else:
+                    prev = None
+                if pagination.has_next:
+                    next = url_for('home.shoppingitems', list_id=list_id, page=page+1, limit=limit, _external=True)
+                else:
+                    next = None
+
+                for shoppingitem in shop_items:
+                    obj = {
+                        'item_id' : shoppingitem.item_id,
+                        'itemname' : shoppingitem.itemname,
+                        'quantity' : shoppingitem.quantity,
+                        'price' : shoppingitem.price
+                        }
+                    results.append(obj)
+                response = jsonify({
+                        'shoppingitems': results,
+                        'prev': prev,
+                        'next': next,
+                        'count': pagination.total
+                        })
+                response.status_code = 200
+                return response
+            else:
+                return {'message':'No items to display'}, 404
     else:
         abort(404)
 
@@ -175,6 +225,6 @@ def shoppingitems_management(list_id, item_id):
                 shoppingitem.delete()
                 return {'message':'shoppingitem with id {} successfully deleted'.format(shoppingitem.item_id)}, 200
         else:
-            abort(404)  
+            return {'message':'Item with that id does not exist'}, 404  
     else:
         abort(404)
