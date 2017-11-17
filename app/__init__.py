@@ -10,7 +10,6 @@ def create_app(config_name):
     """Function that takes a configuration name from config.py and loads the right configuration"""
     app = FlaskAPI(__name__, instance_relative_config=True) #initiliaze the app
     app.config.from_object(APP_CONFIG[config_name])
-    app.config.from_pyfile('config.py')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     DB.init_app(app)
         
