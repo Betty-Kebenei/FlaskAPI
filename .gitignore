@@ -104,3 +104,4 @@ ENV/
 venv
 instance
 migrations
+.vscode
