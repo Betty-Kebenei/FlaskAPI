@@ -27,8 +27,8 @@ class User(DB.Model):
 
     def verify_password(self, password):
         """Validate password during signin."""
-
-        return Bcrypt().check_password_hash(self.password, password)
+        ee = Bcrypt().check_password_hash(self.password, password)
+        return ee
     
     def save(self):
         """ stores user to database """
