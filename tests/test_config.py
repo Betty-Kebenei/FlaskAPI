@@ -11,9 +11,6 @@ class ConfigurationsTestCase(unittest.TestCase):
         app = create_app(config_name="development")
         self.assertTrue(app.config['DEBUG'] is True)
         self.assertTrue(app.config['TESTING'] is False)
-        self.assertTrue(
-            app.config[
-                'SQLALCHEMY_DATABASE_URI'] == 'postgresql://postgres:adams@localhost/flaskapi')
         self.assertTrue(app.config['SQLALCHEMY_ECHO'] is True)
 
     def test_production_config(self):
@@ -21,9 +18,6 @@ class ConfigurationsTestCase(unittest.TestCase):
         app = create_app(config_name="production")
         self.assertTrue(app.config['DEBUG'] is False)
         self.assertTrue(app.config['TESTING'] is False)
-        self.assertTrue(
-            app.config[
-                'SQLALCHEMY_DATABASE_URI'] == 'postgresql://postgres:adams@localhost/flaskapi')
         self.assertTrue(app.config['SQLALCHEMY_ECHO'] is False)
 
     def test_testing_config(self):
@@ -31,9 +25,6 @@ class ConfigurationsTestCase(unittest.TestCase):
         app = create_app(config_name="testing")
         self.assertTrue(app.config['DEBUG'] is True)
         self.assertTrue(app.config['TESTING'] is True)
-        self.assertTrue(
-            app.config[
-                'SQLALCHEMY_DATABASE_URI'] == 'postgresql://postgres:adams@localhost/testapi')
         self.assertTrue(app.config['SQLALCHEMY_ECHO'] is False)
 
 if __name__ == '__main__':
