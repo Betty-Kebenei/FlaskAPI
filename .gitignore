@@ -104,4 +104,8 @@ ENV/
 venv
 instance
 migrations
+<<<<<<< HEAD
 .vscode
+=======
+.vscode
+>>>>>>> 5e7e8ad873648a879e5544fc69ef7c7f84f2f72d

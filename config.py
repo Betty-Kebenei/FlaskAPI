@@ -8,6 +8,10 @@ class Config(object):
     TESTING = False
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     SECRET_KEY = os.environ.get('SECRET_KEY')
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5e7e8ad873648a879e5544fc69ef7c7f84f2f72d
 
 class DevelopmentConfig(Config):
     """Configurations used locally: While building the API"""
@@ -21,7 +25,6 @@ class ProductionConfig(Config):
 
 class TestingConfig(Config):
     """Testing configurations"""
-
     TESTING = True
 
 #A dictionary that enables the above children configurations
