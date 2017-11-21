@@ -92,7 +92,7 @@ class ShoppingitemsTestCase(unittest.TestCase):
             'quantity': 12,
             'price' : 1200
         })
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 409)
 
     def test_multiple_creations(self):
         """ Test API can create many items in one a shopping list. """

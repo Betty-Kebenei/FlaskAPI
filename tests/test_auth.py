@@ -53,7 +53,7 @@ class AuthenticationTestCase(unittest.TestCase):
             'email':'keb@gmail.com',
             'password':'1Sayhello'
             })
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 409)
 
     def test_delete_user(self):
         """ Test API can delete a user. """

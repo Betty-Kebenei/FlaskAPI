@@ -73,7 +73,7 @@ class ShoppingListTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 201)
         self.assertIn('Mashujaa day', str(res.data))
         res = self.current_list()
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 409)
 
     def test_authorization(self):
         """ Test API cannot create a shopping list without a token. """

@@ -43,7 +43,7 @@ def shoppinglists():
                     else:
                         return {'message':
                                 'shoppinglist with that name {} already exists.'
-                                .format(shoppinglist.listname)}, 404
+                                .format(shoppinglist.listname)}, 409
             else:
                 results = []
                 q = request.args.get('q')
@@ -53,30 +53,34 @@ def shoppinglists():
                 else:
                     shopping_lists = ShoppingList.query.filter_by(created_by=user_id)
                 
-                pagination = shopping_lists.paginate(page, per_page=limit, error_out=False)
-                shop_lists = pagination.items
-                if pagination.has_prev:
-                    prev = url_for('home.shoppinglists', page=page-1, limit= limit, _external=True)
-                else:
-                    prev = None
-                if pagination.has_next:
-                    next = url_for('home.shoppinglists', page=page+1, limit=limit, _external=True)
-                else:
-                    next = None
-                for shoppinglist in shop_lists:
-                    obj = {
-                        'list_id': shoppinglist.list_id,
-                        'listname': shoppinglist.listname
-                        }
-                    results.append(obj)
-                response = jsonify({
-                    'shoppinglists': results,
-                    'prev': prev,
-                    'next': next,
-                    'count': pagination.total
-                    })
-                response.status_code = 200
-                return response
+                if shopping_lists:
+                    pagination = shopping_lists.paginate(page, per_page=limit, error_out=False)
+                    shop_lists = pagination.items
+                    if pagination.has_prev:
+                        prev = url_for('home.shoppinglists', page=page-1, limit= limit, _external=True)
+                    else:
+                        prev = None
+                    if pagination.has_next:
+                        next = url_for('home.shoppinglists', page=page+1, limit=limit, _external=True)
+                    else:
+                        next = None
+                    if shop_lists:
+                        for shoppinglist in shop_lists:
+                            obj = {
+                                'list_id': shoppinglist.list_id,
+                                'listname': shoppinglist.listname
+                                }
+                            results.append(obj)
+                        response = jsonify({
+                            'shoppinglists': results,
+                            'prev': prev,
+                            'next': next,
+                            'count': pagination.total
+                            })
+                        response.status_code = 200
+                        return response
+                    else:
+                        return {'message':'No shopping lists to display'}, 404            
         else:
             response = jsonify({'message':user_id})
             response.status_code = 401
@@ -106,9 +110,9 @@ def shoppinglists_management(list_id):
             return {'message':'shoppinglist with id {} successfully edited. '.format(shoppinglist.list_id)}, 200
         else:
             shoppinglist.delete()
-            return {'message':'Shoppinglist with id: {} successfully deleted'.format(shoppinglist.list_id)}, 200
+            return {'message':'Shoppinglist with id {} successfully deleted'.format(shoppinglist.list_id)}, 200
     else:
-        abort(404)
+        {'messsage': 'Shopping list with {} id does not exist'.format(shoppinglist.list_id)},404
 
 @home.route('/home/shoppinglists/<list_id>/shoppingitems', methods=['POST', 'GET'])
 def shoppingitems(list_id):
@@ -126,27 +130,30 @@ def shoppingitems(list_id):
             itemname = str(request.data.get('itemname'))
             quantity = int(request.data.get('quantity'))
             price = int(request.data.get('price'))
-            shoppingitem = ShoppingItems.query.filter_by(itemname=itemname).first()
-            if not shoppingitem:
-                shoppingitem = ShoppingItems(
-                    itemname=itemname,
-                    quantity=quantity,
-                    price=price,
-                    item_for_list=list_id
-                    )
-                shoppingitem.save()
-                response = jsonify({
-                    'item_id' : shoppingitem.item_id,
-                    'itemname' : shoppingitem.itemname,
-                    'quantity' : shoppingitem.quantity,
-                    'price' : shoppingitem.price,
-                    'item_for_list': shoppingitem.item_for_list
-                    })
-                return {'message':'shoppingitem with itemname {} successfully created. '.format(shoppingitem.itemname)}, 201
-            else:
-                return {'message': 'shoppingitem with that name {}\
-                                    already exists in this shopping list.'
-                                    .format(shoppingitem.itemname)}, 404
+            if not itemname:
+                return {'mesaage': 'No itemname provided'}, 400 
+            else: 
+                shoppingitem = ShoppingItems.query.filter_by(itemname=itemname).first()
+                if not shoppingitem:
+                    shoppingitem = ShoppingItems(
+                        itemname=itemname,
+                        quantity=quantity,
+                        price=price,
+                        item_for_list=list_id
+                        )
+                    shoppingitem.save()
+                    response = jsonify({
+                        'item_id' : shoppingitem.item_id,
+                        'itemname' : shoppingitem.itemname,
+                        'quantity' : shoppingitem.quantity,
+                        'price' : shoppingitem.price,
+                        'item_for_list': shoppingitem.item_for_list
+                        })
+                    return {'message':'shoppingitem with itemname {} successfully created. '.format(shoppingitem.itemname)}, 201
+                else:
+                    return {'message': 'shoppingitem with that name {}\
+                                        already exists in this shopping list.'
+                                        .format(shoppingitem.itemname)}, 409
         else: 
             results = []
             q = request.args.get('q')
