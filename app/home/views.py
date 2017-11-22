@@ -19,8 +19,8 @@ def shoppinglists():
 
     #Token retrival
     auth_header = request.headers.get('Authorization')
-    token = auth_header.split(" ")
-    access_token = token[1]
+    access_token = auth_header.split(" ")[1]
+    
     if access_token:
         user_id = User.decode_auth_token(access_token)
         if not isinstance(user_id, str):
@@ -85,6 +85,13 @@ def shoppinglists():
             response = jsonify({'message':user_id})
             response.status_code = 401
             return response
+    else:
+        response = jsonify({
+                    'message':
+                    'No token provided!'
+                    })
+        response.status_code = 500
+        return response
 
 @home.route('/home/shoppinglists/<list_id>', methods=['GET', 'PUT', 'DELETE'])
 def shoppinglists_management(list_id):
