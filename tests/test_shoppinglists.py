@@ -75,15 +75,6 @@ class ShoppingListTestCase(unittest.TestCase):
         res = self.current_list()
         self.assertEqual(res.status_code, 409)
 
-    def test_authorization(self):
-        """ Test API cannot create a shopping list without a token. """
-        self.user_registration()
-        self.user_logsin()
-        with self.assertRaises(AttributeError):
-            self.client().post(
-            '/home/shoppinglists',
-            data={'listname':'Mashujaa day'})
-
     def test_show_shoppinglist(self):
         """ Test API can get all shopping lists. """
         self.user_registration()

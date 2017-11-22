@@ -73,14 +73,6 @@ class AuthenticationTestCase(unittest.TestCase):
         result = json.loads(results.data.decode())
         self.assertTrue(result['access_token']) 
 
-    def test_unregistered_login(self):
-        """ Test API user cannot login before
-        registering because there is nothing to 
-        compare the pashword with in verify_password method. """
-
-        with self.assertRaises(AttributeError):
-            self.client().post('/auth/login', data=self.userlogs)
-
     def test_wrong_password(self):
         """ Test API user cannot login with a wrong password. """
         res = self.client().post('/auth/register', data=self.user)
