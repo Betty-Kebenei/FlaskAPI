@@ -35,6 +35,11 @@ class User(DB.Model):
         DB.session.add(self)
         DB.session.commit()
 
+    @staticmethod
+    def get_all():
+        """ get all users """
+        return User.query.all()
+
     def delete(self):
         """ deletes user """
         DB.session.delete(self)
