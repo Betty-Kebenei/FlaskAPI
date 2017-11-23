@@ -1,7 +1,7 @@
 services: 
   - postgresql
 before_script:
-  - create database api_test
+  - createdb api_test
   - python manage.py db init
   - python manage.py db migrate
   - python manage.py db upgrade
