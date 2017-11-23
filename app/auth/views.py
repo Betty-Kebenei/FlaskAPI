@@ -96,7 +96,7 @@ def login():
                     if access_token:
                         response = jsonify({
                             'message':'Hey {} you are successfully logged in.'.format(user.firstname),
-                            'access_token': access_token.decode('utf-8')
+                            'access_token': access_token
                             })
                         response.status_code = 200
                         return response

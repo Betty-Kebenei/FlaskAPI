@@ -133,18 +133,23 @@ def shoppinglists_management(list_id):
                         return response
                     elif request.method == "PUT":
                         listname = str(request.data.get('listname'))
-                        shoppinglist.listname = listname
-                        shoppinglist.save()
-                        response = jsonify({
-                            'list_id': shoppinglist.list_id,
-                            'listname': shoppinglist.listname
-                        })
-                        return {'message':'shoppinglist with id {} successfully edited. '.format(shoppinglist.list_id)}, 200
+                        shopping_lists = ShoppingList.query.filter_by(created_by=user_id)
+                        for item in shopping_lists:
+                            if item.listname == listname:
+                                return {'message':'There exists a shopping list with such a name'}, 409
+                            else:
+                                shoppinglist.listname = listname
+                                shoppinglist.save()
+                                response = jsonify({
+                                    'list_id': shoppinglist.list_id,
+                                    'listname': shoppinglist.listname
+                                })
+                                return {'message':'shoppinglist with id {} successfully edited. '.format(shoppinglist.list_id)}, 200
                     else:
                         shoppinglist.delete()
                         return {'message':'Shoppinglist with id {} successfully deleted'.format(shoppinglist.list_id)}, 200
                 else:
-                    {'messsage': 'Shopping list with {} id does not exist'.format(shoppinglist.list_id)},404
+                    return {'messsage': 'No shopping with that id'}, 404
             else:
                 response = jsonify({'message':user_id})
                 response.status_code = 401
@@ -179,9 +184,9 @@ def shoppingitems(list_id):
                 shoppinglist = ShoppingList.query.filter_by(list_id=list_id).first()
                 if shoppinglist:
                     if request.method == "POST":
-                        itemname = str(request.data.get('itemname'))
-                        quantity = int(request.data.get('quantity'))
-                        price = int(request.data.get('price'))
+                        itemname = request.data.get('itemname')
+                        quantity = request.data.get('quantity')
+                        price = request.data.get('price')
                         if not itemname:
                             return {'mesaage': 'No itemname provided'}, 400 
                         else: 
@@ -203,9 +208,9 @@ def shoppingitems(list_id):
                                     })
                                 return {'message':'shoppingitem with itemname {} successfully created. '.format(shoppingitem.itemname)}, 201
                             else:
-                                return {'message': 'shoppingitem with that name {}\
-                                                    already exists in this shopping list.'
-                                                    .format(shoppingitem.itemname)}, 409
+                                return {'message': 
+                                        'shoppingitem with that name {} already exists in this shopping list.'
+                                        .format(shoppingitem.itemname)}, 409
                     elif request.method == "GET": 
                         results = []
                         q = request.args.get('q')
@@ -294,20 +299,26 @@ def shoppingitems_management(list_id, item_id):
                             response.status_code = 200
                             return response
                         elif request.method == 'PUT':
-                            itemname = str(request.data.get('itemname'))
-                            quantity = int(request.data.get('quantity'))
-                            price = int(request.data.get('price'))
-                            shoppingitem.itemname = itemname
-                            shoppingitem.quantity = quantity
-                            shoppingitem.price = price
-                            shoppingitem.save()
-                            response = jsonify({
-                                'item_id' : shoppingitem.item_id,
-                                'itemname' : shoppingitem.itemname,
-                                'quantity' : shoppingitem.quantity,
-                                'price' : shoppingitem.price
-                            })
-                            return {'message':'shoppingitem with id {} successfully edited. '.format(shoppingitem.item_id)}, 200
+                            itemname = request.data.get('itemname')
+                            quantity = request.data.get('quantity')
+                            price = request.data.get('price')
+                            shopping_items = ShoppingItems.query.filter_by(item_for_list=list_id)
+                            print (shopping_items)
+                            for items in shopping_items:
+                                if items.itemname == itemname:
+                                    return {'message':'There exists a shopping item in this list with such a name'}, 409
+                                else:
+                                    shoppingitem.itemname = itemname
+                                    shoppingitem.quantity = quantity
+                                    shoppingitem.price = price
+                                    shoppingitem.save()
+                                    response = jsonify({
+                                        'item_id' : shoppingitem.item_id,
+                                        'itemname' : shoppingitem.itemname,
+                                        'quantity' : shoppingitem.quantity,
+                                        'price' : shoppingitem.price
+                                    })
+                                    return {'message':'shoppingitem with id {} successfully edited. '.format(shoppingitem.item_id)}, 200
                         else:
                             shoppingitem.delete()
                             return {'message':'shoppingitem with id {} successfully deleted'.format(shoppingitem.item_id)}, 200

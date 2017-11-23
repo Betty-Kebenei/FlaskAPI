@@ -53,13 +53,14 @@ class User(DB.Model):
             payload = {
                 'sub': user_id,
                 'iat': datetime.utcnow(),
-                'exp': datetime.utcnow() + timedelta(minutes=2)
+                'exp': datetime.utcnow() + timedelta(minutes=20)
             }
-            return jwt.encode(
+            jwt_string = jwt.encode(
                 payload,
                 app.config.get('SECRET_KEY'),
                 algorithm='HS256'
             )
+            return jwt_string.decode()
         except Exception as e:
             return e
     
@@ -119,8 +120,8 @@ class ShoppingItems(DB.Model):
 
     item_id = DB.Column(DB.Integer, primary_key=True)
     itemname = DB.Column(DB.String(50), unique=True)
-    quantity = DB.Column(DB.Integer)
-    price = DB.Column(DB.Integer)
+    quantity = DB.Column(DB.String(50))
+    price = DB.Column(DB.Float)
     item_for_list = DB.Column(DB.Integer, DB.ForeignKey(ShoppingList.list_id))
     # shoppinglists = DB.relationship('ShoppingList', backref='shoppingitems', lazy='dynamic')
 
