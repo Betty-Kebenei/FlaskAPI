@@ -2,8 +2,6 @@ services:
   - postgresql
 before_script:
   - createdb api_test
-  - flask db migrate
-  - flask db upgrade
 language: python
 python:
   - "3.6"
