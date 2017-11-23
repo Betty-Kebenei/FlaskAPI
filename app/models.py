@@ -1,4 +1,5 @@
-from app import DB, create_app
+from flask import current_app
+from app import DB
 from flask_bcrypt import Bcrypt
 import jwt
 from datetime import datetime, timedelta
@@ -47,8 +48,6 @@ class User(DB.Model):
 
     def encode_auth_token(self, user_id):
         """ Generating an authentication token and returns a string error is expection occurs"""
-
-        app = create_app(config_name='development')
         try:
             payload = {
                 'sub': user_id,
@@ -57,7 +56,7 @@ class User(DB.Model):
             }
             jwt_string = jwt.encode(
                 payload,
-                app.config.get('SECRET_KEY'),
+                current_app.config.get('SECRET_KEY'),
                 algorithm='HS256'
             )
             return jwt_string
@@ -68,9 +67,8 @@ class User(DB.Model):
     def decode_auth_token(auth_token):
         """Decodes the authentication token"""
 
-        app = create_app(config_name='development')
         try:
-            payload = jwt.decode(auth_token, app.config.get('SECRET_KEY'))
+            payload = jwt.decode(auth_token, current_app.config.get('SECRET_KEY'))
             return payload['sub']
         except jwt.ExpiredSignatureError:
             return 'Sorry your token expired, please log in again!'
