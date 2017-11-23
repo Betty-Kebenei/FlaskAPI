@@ -60,7 +60,7 @@ class User(DB.Model):
                 app.config.get('SECRET_KEY'),
                 algorithm='HS256'
             )
-            return jwt_string.decode()
+            return jwt_string
         except Exception as e:
             return e
     
