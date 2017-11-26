@@ -53,7 +53,7 @@ class AuthenticationTestCase(unittest.TestCase):
             'email':'keb@gmail.com',
             'password':'1Sayhello'
             })
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 409)
 
     def test_delete_user(self):
         """ Test API can delete a user. """
@@ -72,14 +72,6 @@ class AuthenticationTestCase(unittest.TestCase):
         self.assertEqual(results.status_code, 200)
         result = json.loads(results.data.decode())
         self.assertTrue(result['access_token']) 
-
-    def test_unregistered_login(self):
-        """ Test API user cannot login before
-        registering because there is nothing to 
-        compare the pashword with in verify_password method. """
-
-        with self.assertRaises(AttributeError):
-            self.client().post('/auth/login', data=self.userlogs)
 
     def test_wrong_password(self):
         """ Test API user cannot login with a wrong password. """

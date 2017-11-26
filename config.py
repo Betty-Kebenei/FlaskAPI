@@ -6,8 +6,8 @@ class Config(object):
 
     DEBUG = True
     TESTING = False
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:adams@localhost/flaskapi'
-
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    SECRET_KEY = os.environ.get('SECRET_KEY')
 
 class DevelopmentConfig(Config):
     """Configurations used locally: While building the API"""
@@ -21,9 +21,7 @@ class ProductionConfig(Config):
 
 class TestingConfig(Config):
     """Testing configurations"""
-
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:adams@localhost/testapi'
 
 #A dictionary that enables the above children configurations
 APP_CONFIG = {'development':DevelopmentConfig,

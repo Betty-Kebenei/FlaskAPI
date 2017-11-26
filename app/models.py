@@ -1,4 +1,5 @@
-from app import DB, create_app
+from flask import current_app
+from app import DB
 from flask_bcrypt import Bcrypt
 import jwt
 from datetime import datetime, timedelta
@@ -27,13 +28,18 @@ class User(DB.Model):
 
     def verify_password(self, password):
         """Validate password during signin."""
-
-        return Bcrypt().check_password_hash(self.password, password)
+        ee = Bcrypt().check_password_hash(self.password, password)
+        return ee
     
     def save(self):
         """ stores user to database """
         DB.session.add(self)
         DB.session.commit()
+
+    @staticmethod
+    def get_all():
+        """ get all users """
+        return User.query.all()
 
     def delete(self):
         """ deletes user """
@@ -42,19 +48,18 @@ class User(DB.Model):
 
     def encode_auth_token(self, user_id):
         """ Generating an authentication token and returns a string error is expection occurs"""
-
-        app = create_app(config_name='development')
         try:
             payload = {
                 'sub': user_id,
                 'iat': datetime.utcnow(),
-                'exp': datetime.utcnow() + timedelta(minutes=2)
+                'exp': datetime.utcnow() + timedelta(minutes=20)
             }
-            return jwt.encode(
+            jwt_string = jwt.encode(
                 payload,
-                app.config.get('SECRET_KEY'),
+                current_app.config.get('SECRET_KEY'),
                 algorithm='HS256'
             )
+            return jwt_string
         except Exception as e:
             return e
     
@@ -62,9 +67,8 @@ class User(DB.Model):
     def decode_auth_token(auth_token):
         """Decodes the authentication token"""
 
-        app = create_app(config_name='development')
         try:
-            payload = jwt.decode(auth_token, app.config.get('SECRET_KEY'))
+            payload = jwt.decode(auth_token, current_app.config.get('SECRET_KEY'))
             return payload['sub']
         except jwt.ExpiredSignatureError:
             return 'Sorry your token expired, please log in again!'
@@ -114,8 +118,8 @@ class ShoppingItems(DB.Model):
 
     item_id = DB.Column(DB.Integer, primary_key=True)
     itemname = DB.Column(DB.String(50), unique=True)
-    quantity = DB.Column(DB.Integer)
-    price = DB.Column(DB.Integer)
+    quantity = DB.Column(DB.String(50))
+    price = DB.Column(DB.Float)
     item_for_list = DB.Column(DB.Integer, DB.ForeignKey(ShoppingList.list_id))
     # shoppinglists = DB.relationship('ShoppingList', backref='shoppingitems', lazy='dynamic')
 
