@@ -1,6 +1,7 @@
 #  /app/home/views.py
 import json
 import requests
+import re
 
 from flask import request, jsonify, abort, url_for
 from app.models import User, ShoppingList, ShoppingItems
@@ -34,6 +35,14 @@ def shoppinglists():
             if not isinstance(user_id, str):
                 if request.method == "POST":
                     listname = str(request.data["listname"])
+                    # if not re.match(r"(?=^.{3,}$)^[A-Za-z0-9_-]*[._-]?[A-Za-z0-9_-]+$", listname):
+                    #     response = jsonify(
+                    #     {'message':'listname should contain letters, digits and with a min length of 3'}
+                    #     )
+                    #     response.status_code = 400
+                    #     return response
+                    # else:
+                    #     pass
                     if not listname:
                         return {'mesaage': 'No input provided'}, 400
                     else:
@@ -187,6 +196,12 @@ def shoppingitems(list_id):
                         itemname = request.data.get('itemname')
                         quantity = request.data.get('quantity')
                         price = request.data.get('price')
+                        # if not re.match(r"(?=^.{3,}$)^[A-Za-z0-9_-]*[._-]?[A-Za-z0-9_-]+$", itemname):
+                        #     response = jsonify(
+                        #     {'message':'itemname should contain letters, digits and with a min length of 3'}
+                        #     )
+                        #     response.status_code = 400
+                        #     return response
                         if not itemname:
                             return {'mesaage': 'No itemname provided'}, 400 
                         else: 

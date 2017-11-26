@@ -16,42 +16,59 @@ def register():
         username = request.data['username']
         email = request.data['email']
         password = request.data['password']
+
         if username and email and password: 
-            # if not re.match(r'', username):
-            #     response = jsonify(
-            #         {'message':'Username should contain letters, digits and spaces only'}
-            #         )
-            #     response.status_code = 400
-            #     return response
-            #  if not re.match(r'', username):
-            #         response = jsonify(
-            #         {'message':'email should contain letters, digits and spaces only'}
-            #         )
-            #     response.status_code = 400
-            #     return response
-            #  if not re.match(r'', username):
-            #         response = jsonify(
-            #         {'message':'Username should contain letters, digits and spaces only'}
-            #         )
-            #     response.status_code = 400
-            #     return response
+            if not re.match(r"(?=^.{3,}$)^[A-Za-z0-9_-]*[._-]?[A-Za-z0-9_-]+$", firstname):
+                response = jsonify(
+                    {'message':'firstname should contain letters, digits and with a min length of 3'}
+                    )
+                response.status_code = 400
+            if not re.match(r"(?=^.{3,}$)^[A-Za-z0-9_-]*[._-]?[A-Za-z0-9_-]+$", lastname):
+                response = jsonify(
+                    {'message':'lastname should contain letters, digits and with a min length of 3'}
+                    )
+                response.status_code = 400
+            if not re.match(r"(?=^.{3,}$)^[A-Za-z0-9_-]*[._-]?[A-Za-z0-9_-]+$", username):
+                response = jsonify(
+                    {'message':'Username should contain letters, digits and with a min length of 3'}
+                    )
+                response.status_code = 400
+                return response
+            if not re.match(r"^[\w-]+@([\w-]+\.)+[\w]+$", email):
+                response = jsonify(
+                {'message':'email should contain letters, digits and spaces only: '
+                            'valid format = email@email.com'}
+                )
+                response.status_code = 400
+                return response
+            if not re.match(r"^(?=.*[a-z])(?=.*[0-9]){6}", password):
+                response = jsonify(
+                {'message': 'Password must contain: atleast a lowercase letters, atleast a digit, with min-length of 6'}
+                )
+                response.status_code = 400
+                return response
             user = User.query.filter_by(email=email).first()
             if not user:
-                user = User(
-                    firstname=firstname,
-                    lastname=lastname,
-                    username=username,
-                    email=email,
-                    password=password
-                )
-                user.save()
-                response = jsonify(
-                    {'message':'User with email {} successfully registered'.format(user.email)}
+                if not User.query.filter_by(username=username).first():
+                    user = User(
+                        firstname=firstname,
+                        lastname=lastname,
+                        username=username,
+                        email=email,
+                        password=password
                     )
-                response.status_code = 201
-                return response
+                    user.save()
+                    response = jsonify(
+                        {'message':'User with email {} successfully registered'.format(user.email)}
+                        )
+                    response.status_code = 201
+                    return response
+                else:
+                    response = jsonify({'message':'User with that username already exist.'})
+                    response.status_code = 409
+                    return response
             else:
-                response = jsonify({'message':'User with email:{} already exist.'.format(user.email)})
+                response = jsonify({'message':'User with that email already exist.'})
                 response.status_code = 409
                 return response
         else:
@@ -131,14 +148,14 @@ def login():
                 else:
                     response = jsonify({
                         'message':
-                        'Hey {} you entered incorrect password!'
+                        'Incorrect password!'
                         .format(user.username)})
                     response.status_code = 404
                     return response
             else:
                 response = jsonify({
                     'message':
-                    'Hey no user with such email!'
+                    'User does not exist!'
                     })
                 response.status_code = 404
                 return response
