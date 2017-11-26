@@ -2,10 +2,6 @@
 
 [![Coverage Status](https://coveralls.io/repos/github/Betty-Kebenei/FlaskAPI/badge.svg?branch=master)](https://coveralls.io/github/Betty-Kebenei/FlaskAPI?branch=master)
 
-[![Maintainability](https://api.codeclimate.com/v1/badges/e8b497099715948010b6/maintainability)]
-
-[![Test Coverage](https://api.codeclimate.com/v1/badges/e8b497099715948010b6/test_coverage)](https://codeclimate.com/github/Betty-Kebenei/FlaskAPI/test_coverage)
-
 # Flask Restful API
 
 This is a flask restful API for a shopping lists application; an application that helps users to keep track of their shopping lists. Using this API, a user can register for an account, login, logout; create, edit, view, or delete shopping lists as well as its items.
