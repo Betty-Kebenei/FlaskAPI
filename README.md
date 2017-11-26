@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Betty-Kebenei/FlaskAPI.svg?branch=master)](https://travis-ci.org/Betty-Kebenei/FlaskAPI)
+
 
 [![Coverage Status](https://coveralls.io/repos/github/Betty-Kebenei/FlaskAPI/badge.svg?branch=master)](https://coveralls.io/github/Betty-Kebenei/FlaskAPI?branch=master)
 
@@ -11,7 +11,7 @@ This is a flask restful API for a shopping lists application; an application tha
 ### Prerequisites
 You need the following installed/setted-up so as to get the software running:
 
-1. Python 3.6
+1. Python 2.7
 
 2. Postgresql
 
