@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: dc3524ad7819
-Revises: 
-Create Date: 2017-10-23 18:52:39.088000
+Revision ID: 8403be808c6a
+Revises: dc3524ad7819
+Create Date: 2017-11-23 21:15:46.755468
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'dc3524ad7819'
-down_revision = None
+revision = '8403be808c6a'
+down_revision = 'dc3524ad7819'
 branch_labels = None
 depends_on = None
 
@@ -33,17 +33,17 @@ def upgrade():
     sa.Column('list_id', sa.Integer(), nullable=False),
     sa.Column('listname', sa.String(length=50), nullable=True),
     sa.Column('created_by', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['created_by'], [u'users.user_id'], ),
+    sa.ForeignKeyConstraint(['created_by'], ['users.user_id'], ),
     sa.PrimaryKeyConstraint('list_id'),
     sa.UniqueConstraint('listname')
     )
     op.create_table('shoppingitems',
     sa.Column('item_id', sa.Integer(), nullable=False),
     sa.Column('itemname', sa.String(length=50), nullable=True),
-    sa.Column('quantity', sa.Integer(), nullable=True),
-    sa.Column('price', sa.Integer(), nullable=True),
+    sa.Column('quantity', sa.String(length=50), nullable=True),
+    sa.Column('price', sa.Float(), nullable=True),
     sa.Column('item_for_list', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['item_for_list'], [u'shoppinglists.list_id'], ),
+    sa.ForeignKeyConstraint(['item_for_list'], ['shoppinglists.list_id'], ),
     sa.PrimaryKeyConstraint('item_id'),
     sa.UniqueConstraint('itemname')
     )
