@@ -197,11 +197,26 @@ def shoppingitems(list_id):
                         quantity = request.data.get('quantity')
                         price = request.data.get('price')
                         
-                        if itemname:
+                        if itemname and quantity and price:
                             if not re.match(r"(?=^.{3,}$)^[A-Za-z0-9_-]+( +[A-Za-z0-9_-]+)*$", itemname):
-                                response = jsonify(
-                                            {'message':'itemname should contain letters, digits and with a min length of 3'}
-                                            )
+                                response = jsonify({
+                                                'message':
+                                                'itemname should contain letters, digits and with a min length of 3'
+                                                })
+                                response.status_code = 400
+                                return response
+                            if not re.match(r"(?=^.{1,}$)^[A-Za-z0-9_-]+( +[A-Za-z0-9_-]+)*$", quantity):
+                                response = jsonify({
+                                                'message':
+                                                'Quantity should contain letters, digits and spaces'
+                                                })
+                                response.status_code = 400
+                                return response
+                            if not re.match(r"^[0-9.]+$", price):
+                                response = jsonify({
+                                                'message':
+                                                'price should number with or without decimals'
+                                                })
                                 response.status_code = 400
                                 return response
 
@@ -231,7 +246,13 @@ def shoppingitems(list_id):
                                         'shoppingitem with itemname {} successfully created. '
                                         .format(shoppingitem.itemname)}, 201
                         else:
-                            return {'mesaage': 'No itemname provided'}, 400 
+                            if not itemname:
+                                return {'mesaage': 'No itemname provided'}, 400 
+                            elif not quantity:
+                                return {'mesaage': 'If there is no quantity to provided, key in 0'}, 400 
+                            else:
+                                return {'mesaage': 'If there is no price to provided, key in 0'}, 400 
+                                
                     elif request.method == "GET": 
                         results = []
                         q = request.args.get('q')
