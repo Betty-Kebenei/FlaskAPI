@@ -13,11 +13,10 @@ class AuthenticationTestCase(unittest.TestCase):
         self.app = create_app(config_name="testing")
         self.client = self.app.test_client
         self.user = {
-            'firstname':'Betty',
-            'lastname': 'Kebenei',
             'username' : 'Berry',
             'email':'keb@gmail.com',
-            'password':'Coolday1'
+            'password':'Coolday1',
+            'repeat_password':'Coolday1'
             }
         self.userlogs = {
             'email':'keb@gmail.com',
@@ -47,21 +46,12 @@ class AuthenticationTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 201)
         self.assertIn('keb@gmail', str(res.data))
         res = self.client().post('/auth/register', data={
-            'firstname':'Brillian',
-            'lastname': 'Baraka',
             'username' : 'Bri',
             'email':'keb@gmail.com',
-            'password':'1Sayhello'
+            'password':'1Sayhello',
+            'repeat_password':'1Sayhello'
             })
         self.assertEqual(res.status_code, 409)
-
-    def test_delete_user(self):
-        """ Test API can delete a user. """
-        res = self.client().post('/auth/register', data=self.user)
-        self.assertEqual(res.status_code, 201)
-        self.assertIn('keb@gmail', str(res.data))
-        res = self.client().delete('/auth/register/keb@gmail.com')
-        self.assertEqual(res.status_code, 202)
 
     def test_login(self):
         """ Test API user can login. """
@@ -72,6 +62,18 @@ class AuthenticationTestCase(unittest.TestCase):
         self.assertEqual(results.status_code, 200)
         result = json.loads(results.data.decode())
         self.assertTrue(result['access_token']) 
+
+    def test_delete_user(self):
+        """ Test API can delete a user. """
+        res = self.client().post('/auth/register', data=self.user)
+        self.assertEqual(res.status_code, 201)
+        self.assertIn('keb@gmail', str(res.data))
+        results = self.client().post('/auth/login', data=self.userlogs)
+        self.assertEqual(results.status_code, 200)
+        access_token = json.loads(results.data.decode())['access_token']
+        res = self.client().delete('/auth/delete_user',
+        headers=dict(Authorization="Bearer " + access_token))
+        self.assertEqual(res.status_code, 202)
 
     def test_wrong_password(self):
         """ Test API user cannot login with a wrong password. """

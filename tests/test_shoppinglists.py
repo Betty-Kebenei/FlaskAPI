@@ -24,18 +24,17 @@ class ShoppingListTestCase(unittest.TestCase):
     #### HELPER METHODS #### 
     def user_registration(
             self,
-            firstname="Betty",
-            lastname="Kebenei",
             username="Berry",
             email="berry@berry.com",
-            password="A1234a"):
+            password="A1234a",
+            repeat_password="A1234a"
+            ):
         """ User registration helper method."""
         data = {
-            'firstname':firstname,
-            'lastname':lastname,
             'username' :username,
             'email':email,
-            'password':password
+            'password':password,
+            'repeat_password':repeat_password
         }
         return self.client().post('/auth/register', data=data)
 

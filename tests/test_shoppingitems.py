@@ -31,19 +31,18 @@ class ShoppingitemsTestCase(unittest.TestCase):
     #### HELPER METHODS #### 
     def user_registration(
             self,
-            firstname="Betty",
-            lastname="Kebenei",
             username="Berry",
             email="berry@berry.com",
-            password="A1234a"):
+            password="A1234a",
+            repeat_password="A1234a"
+            ):
         """ User registration helper method."""
         data = {
-            'firstname':firstname,
-            'lastname':lastname,
             'username' :username,
             'email':email,
-            'password':password
-        }
+            'password':password,
+            'repeat_password':repeat_password
+            }
         return self.client().post('/auth/register', data=data)
 
     def user_logsin(self, email="berry@berry.com", password="A1234a"):
@@ -75,7 +74,8 @@ class ShoppingitemsTestCase(unittest.TestCase):
         result = self.user_logsin()
         access_token = json.loads(result.data.decode())['access_token']
         res = self.client().post('/home/shoppinglists/1/shoppingitems', 
-        headers=dict(Authorization="Bearer " + access_token), data=self.shoppingitem)
+        headers=dict(Authorization="Bearer " + access_token),
+        data=self.shoppingitem)
         self.assertEqual(res.status_code, 201)
         self.assertIn('Wheat Flour', str(res.data))
 
