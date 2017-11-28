@@ -10,26 +10,22 @@ class User(DB.Model):
     __tablename__ = "users"
 
     user_id = DB.Column(DB.Integer, primary_key=True)
-    firstname = DB.Column(DB.String(50))
-    lastname = DB.Column(DB.String(50))
     username = DB.Column(DB.String(50), unique=True)
     email = DB.Column(DB.String(50), unique=True)
     password = DB.Column(DB.String(128))
+    repeat_password = DB.Column(DB.String(128))
     shoppinglists = DB.relationship('ShoppingList', backref='ShoppingList.list_id', cascade="all, delete-orphan")
 
-    def __init__(self, firstname, lastname, username, email, password):
+    def __init__(self, username, email, password, repeat_password):
         """ initilization """
-        self.firstname = firstname
-        self.lastname = lastname
         self.username = username
         self.email = email
         self.password = Bcrypt().generate_password_hash(password)
-
+        self.repeat_password = password
 
     def verify_password(self, password):
         """Validate password during signin."""
-        ee = Bcrypt().check_password_hash(self.password, password)
-        return ee
+        return Bcrypt().check_password_hash(self.password, password)
     
     def save(self):
         """ stores user to database """
@@ -84,7 +80,7 @@ class ShoppingList(DB.Model):
     __tablename__ = "shoppinglists"
 
     list_id = DB.Column(DB.Integer, primary_key=True)
-    listname = DB.Column(DB.String(50), unique=True)
+    listname = DB.Column(DB.String(50))
     shoppingitems = DB.relationship('ShoppingItems', backref='ShoppingItems.item_id', cascade="all, delete-orphan")
     created_by = DB.Column(DB.Integer, DB.ForeignKey(User.user_id))
     
@@ -117,11 +113,10 @@ class ShoppingItems(DB.Model):
     __tablename__ = "shoppingitems"
 
     item_id = DB.Column(DB.Integer, primary_key=True)
-    itemname = DB.Column(DB.String(50), unique=True)
+    itemname = DB.Column(DB.String(50))
     quantity = DB.Column(DB.String(50))
     price = DB.Column(DB.Float)
     item_for_list = DB.Column(DB.Integer, DB.ForeignKey(ShoppingList.list_id))
-    # shoppinglists = DB.relationship('ShoppingList', backref='shoppingitems', lazy='dynamic')
 
     def __init__(self, itemname, quantity, price, item_for_list):
         """ initilization """
