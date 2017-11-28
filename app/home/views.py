@@ -35,19 +35,22 @@ def shoppinglists():
             if not isinstance(user_id, str):
                 if request.method == "POST":
                     listname = str(request.data["listname"])
-                    # if not re.match(r"(?=^.{3,}$)^[A-Za-z0-9_-]*[._-]?[A-Za-z0-9_-]+$", listname):
-                    #     response = jsonify(
-                    #     {'message':'listname should contain letters, digits and with a min length of 3'}
-                    #     )
-                    #     response.status_code = 400
-                    #     return response
-                    # else:
-                    #     pass
+                    if not re.match(r"(?=^.{3,}$)^[A-Za-z0-9_-]+( +[A-Za-z0-9_-]+)*$", listname):
+                        response = jsonify(
+                            {'message':'listname should contain letters, digits and with a min length of 3'}
+                        )
+                        response.status_code = 400
+                        return response
                     if not listname:
                         return {'mesaage': 'No input provided'}, 400
                     else:
-                        shoppinglist = ShoppingList.query.filter_by(listname=listname).first()
-                        if not shoppinglist:
+                        list_exists = ShoppingList.query.filter_by(created_by=user_id).filter_by(listname=listname).first()
+                        if list_exists:
+                            return {
+                                    'message':
+                                    'shoppinglist with that name already exists.'
+                                    }, 409        
+                        else:
                             shoppinglist = ShoppingList(listname=listname, created_by=user_id)
                             shoppinglist.save()
                             response = jsonify({
@@ -57,10 +60,7 @@ def shoppinglists():
                                 })
                             return {'message':'shoppinglist with name {} successfully created'.format(
                                     shoppinglist.listname)}, 201
-                        else:
-                            return {'message':
-                                    'shoppinglist with that name {} already exists.'
-                                    .format(shoppinglist.listname)}, 409
+
                 elif request.method == "GET":
                     results = []
                     q = request.args.get('q')
@@ -196,17 +196,22 @@ def shoppingitems(list_id):
                         itemname = request.data.get('itemname')
                         quantity = request.data.get('quantity')
                         price = request.data.get('price')
-                        # if not re.match(r"(?=^.{3,}$)^[A-Za-z0-9_-]*[._-]?[A-Za-z0-9_-]+$", itemname):
-                        #     response = jsonify(
-                        #     {'message':'itemname should contain letters, digits and with a min length of 3'}
-                        #     )
-                        #     response.status_code = 400
-                        #     return response
-                        if not itemname:
-                            return {'mesaage': 'No itemname provided'}, 400 
-                        else: 
-                            shoppingitem = ShoppingItems.query.filter_by(itemname=itemname).first()
-                            if not shoppingitem:
+                        
+                        if itemname:
+                            if not re.match(r"(?=^.{3,}$)^[A-Za-z0-9_-]+( +[A-Za-z0-9_-]+)*$", itemname):
+                                response = jsonify(
+                                            {'message':'itemname should contain letters, digits and with a min length of 3'}
+                                            )
+                                response.status_code = 400
+                                return response
+
+                            item = ShoppingItems.query.filter_by(item_for_list=list_id).filter_by(itemname=itemname).first()
+                            if item:
+                                return {
+                                        'message':
+                                        'shoppingitem with that name already exists.'
+                                        }, 409 
+                            else:
                                 shoppingitem = ShoppingItems(
                                     itemname=itemname,
                                     quantity=quantity,
@@ -221,11 +226,12 @@ def shoppingitems(list_id):
                                     'price' : shoppingitem.price,
                                     'item_for_list': shoppingitem.item_for_list
                                     })
-                                return {'message':'shoppingitem with itemname {} successfully created. '.format(shoppingitem.itemname)}, 201
-                            else:
-                                return {'message': 
-                                        'shoppingitem with that name {} already exists in this shopping list.'
-                                        .format(shoppingitem.itemname)}, 409
+                                return {
+                                        'message':
+                                        'shoppingitem with itemname {} successfully created. '
+                                        .format(shoppingitem.itemname)}, 201
+                        else:
+                            return {'mesaage': 'No itemname provided'}, 400 
                     elif request.method == "GET": 
                         results = []
                         q = request.args.get('q')
@@ -275,7 +281,11 @@ def shoppingitems(list_id):
                         response.status_code = 200
                         return response
                 else:
-                    abort(404)
+                    response = jsonify({
+                            'message':
+                            'There is no shopping list with that id to add items to'})
+                    response.status_code = 404
+                    return response
             else:
                 response = jsonify({'message':user_id})
                 response.status_code = 401
@@ -317,23 +327,27 @@ def shoppingitems_management(list_id, item_id):
                             itemname = request.data.get('itemname')
                             quantity = request.data.get('quantity')
                             price = request.data.get('price')
-                            shopping_items = ShoppingItems.query.filter_by(item_for_list=list_id)
-                            print (shopping_items)
-                            for items in shopping_items:
-                                if items.itemname == itemname:
-                                    return {'message':'There exists a shopping item in this list with such a name'}, 409
-                                else:
-                                    shoppingitem.itemname = itemname
-                                    shoppingitem.quantity = quantity
-                                    shoppingitem.price = price
-                                    shoppingitem.save()
-                                    response = jsonify({
-                                        'item_id' : shoppingitem.item_id,
-                                        'itemname' : shoppingitem.itemname,
-                                        'quantity' : shoppingitem.quantity,
-                                        'price' : shoppingitem.price
-                                    })
-                                    return {'message':'shoppingitem with id {} successfully edited. '.format(shoppingitem.item_id)}, 200
+                            item = ShoppingItems.query.filter_by(item_for_list=list_id).filter_by(itemname=itemname).first()
+                            if item:
+                                return {
+                                        'message':
+                                        'shoppingitem with that name already exists.'
+                                        }, 409 
+                            else:
+                                shoppingitem.itemname = itemname
+                                shoppingitem.quantity = quantity
+                                shoppingitem.price = price
+                                shoppingitem.save()
+                                response = jsonify({
+                                    'item_id' : shoppingitem.item_id,
+                                    'itemname' : shoppingitem.itemname,
+                                    'quantity' : shoppingitem.quantity,
+                                    'price' : shoppingitem.price
+                                })
+                                return {
+                                        'message':
+                                        'shoppingitem with id {} successfully edited. '
+                                        .format(shoppingitem.item_id)}, 200
                         else:
                             shoppingitem.delete()
                             return {'message':'shoppingitem with id {} successfully deleted'.format(shoppingitem.item_id)}, 200
