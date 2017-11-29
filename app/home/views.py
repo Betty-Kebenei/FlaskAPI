@@ -131,7 +131,7 @@ def shoppinglists_management(list_id):
         if access_token:
             user_id = User.decode_auth_token(access_token)
             if not isinstance(user_id, str):
-                shoppinglist = ShoppingList.query.filter_by(list_id=list_id).first()
+                shoppinglist = ShoppingList.query.filter_by(created_by=user_id).filter_by(list_id=list_id).first()
                 if shoppinglist:
                     if request.method == "GET":
                         response = jsonify({
@@ -331,9 +331,9 @@ def shoppingitems_management(list_id, item_id):
         if access_token:
             user_id = User.decode_auth_token(access_token)
             if not isinstance(user_id, str):
-                shoppinglist = ShoppingList.query.filter_by(list_id=list_id).first()
+                shoppinglist = ShoppingList.query.filter_by(created_by=user_id).filter_by(list_id=list_id).first()
                 if shoppinglist:
-                    shoppingitem = ShoppingItems.query.filter_by(item_id=item_id).first()
+                    shoppingitem = ShoppingItems.query.filter_by(item_for_list=list_id).filter_by(item_id=item_id).first()
                     if shoppingitem:
                         if request.method == 'GET':
                             response = jsonify({
