@@ -140,6 +140,26 @@ class ShoppingItems(DB.Model):
         DB.session.delete(self)
         DB.session.commit()
 
-
     def __repr__(self):
         return "<ShoppingItems: {}>".format(self.itemname)
+
+class BlacklistToken(DB.Model):
+    """ Model for already used tokens """
+
+    __tablename__ = "tokens"
+
+    token_id = DB.Column(DB.Integer, primary_key=True)
+    token = DB.Column(DB.String(500), unique=True, nullable=False)
+    date_blacklisted = DB.Column(DB.DateTime, nullable=False)
+
+    def __init__(self, token):
+        self.token = token
+        self.date_blacklisted = datetime.now()
+
+    def save(self):
+        """ stores token to database """
+        DB.session.add(self)
+        DB.session.commit()
+
+    def __repr__(self):
+        return '<token_id: {}>'.format(self.token)
