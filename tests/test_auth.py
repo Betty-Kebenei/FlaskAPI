@@ -83,5 +83,17 @@ class AuthenticationTestCase(unittest.TestCase):
         results = self.client().post('/auth/login', data={'email':'keb@gmail.com', 'password':'helloYou1'})
         self.assertEqual(results.status_code, 404)
 
+    def test_logout(self):
+        res = self.client().post('/auth/register', data=self.user)
+        self.assertEqual(res.status_code, 201)
+        self.assertIn('keb@gmail', str(res.data))
+        results = self.client().post('/auth/login', data=self.userlogs)
+        self.assertEqual(results.status_code, 200)
+        access_token = json.loads(results.data.decode())['access_token']
+        response = self.client().post(
+            '/auth/logout',
+            headers=dict(Authorization="Bearer " + access_token))  
+        self.assertEqual(results.status_code, 200)
+
 if __name__ == '__main__':
     unittest.main()
