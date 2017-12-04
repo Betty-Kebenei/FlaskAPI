@@ -40,7 +40,7 @@ class AuthenticationTestCase(unittest.TestCase):
         result = json.loads(res.data.decode())
         self.assertEqual(result['message'], u"User with email keb@gmail.com successfully registered")
 
-    def test_duplicate_registration(self):
+    def test_duplicate_registration_fails(self):
         """ Test API user cannot register with an existing email. """
         res = self.client().post('/auth/register', data=self.user)
         self.assertEqual(res.status_code, 201)
@@ -76,7 +76,7 @@ class AuthenticationTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 202)
 
     def test_wrong_password(self):
-        """ Test API user cannot login with a wrong password. """
+        """ Test API cannot login user with a wrong password. """
         res = self.client().post('/auth/register', data=self.user)
         self.assertEqual(res.status_code, 201)
         self.assertIn('keb@gmail.com', str(res.data))
@@ -84,6 +84,7 @@ class AuthenticationTestCase(unittest.TestCase):
         self.assertEqual(results.status_code, 404)
 
     def test_logout(self):
+        """ Test API can logout user. """
         res = self.client().post('/auth/register', data=self.user)
         self.assertEqual(res.status_code, 201)
         self.assertIn('keb@gmail', str(res.data))

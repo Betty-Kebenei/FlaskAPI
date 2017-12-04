@@ -67,7 +67,7 @@ class ShoppingitemsTestCase(unittest.TestCase):
 
     #### END OF HELPER METHODS ####
 
-    def test_shoppingitem_creation(self):
+    def test_shoppingitem_successful_creation(self):
         """ Test API can create a shopping item in a shopping list. """
         self.current_list()
         self.user_registration()
@@ -79,7 +79,7 @@ class ShoppingitemsTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 201)
         self.assertIn('Wheat Flour', str(res.data))
 
-    def test_creation_fails(self):
+    def test_shoppingitem_must_be_created_in_a_shoppinglist(self):
         """ Test API can must create a shopping item in a shopping list. """
         self.user_registration()
         result = self.user_logsin()
@@ -90,7 +90,7 @@ class ShoppingitemsTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertNotIn('Wheat Flour', str(res.data))
 
-    def test_duplicate_creation(self):
+    def test_duplicate_shoppingitem_creation_fails(self):
         """ Test API cannot create items with same name in one a shopping list. """
         self.current_list()
         self.user_registration()
@@ -108,7 +108,7 @@ class ShoppingitemsTestCase(unittest.TestCase):
         })
         self.assertEqual(res.status_code, 409)
 
-    def test_multiple_creations(self):
+    def test_multiple_shoppingitem_creations_successful(self):
         """ Test API can create many items in one a shopping list. """
         self.current_list()
         self.user_registration()

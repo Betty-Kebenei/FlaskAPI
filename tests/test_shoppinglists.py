@@ -60,13 +60,13 @@ class ShoppingListTestCase(unittest.TestCase):
 
     #### END OF HELPER METHODS ####
 
-    def test_shoppinglist_creation(self):
+    def test_shoppinglist_creation_is_successful(self):
         """ Test API can create a shopping list. """
         res = self.current_list()
         self.assertEqual(res.status_code, 201)
         self.assertIn('Mashujaa day', str(res.data))
 
-    def test_existing_shoppinglist(self):
+    def test_duplicate_shoppinglist_creation_fails(self):
         """ Test API can check if a shopping list already exists. """
         res = self.current_list()
         self.assertEqual(res.status_code, 201)
