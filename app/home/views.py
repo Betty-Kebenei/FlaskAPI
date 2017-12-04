@@ -34,7 +34,8 @@ def shoppinglists():
             user_id = User.decode_auth_token(access_token)
             if not isinstance(user_id, str):
                 if request.method == "POST":
-                    listname = str(request.data["listname"])
+                    listname = str(request.data["listname"]).lower()
+                    print(listname)
                     if not re.match(r"(?=^.{3,}$)^[A-Za-z0-9_-]+( +[A-Za-z0-9_-]+)*$", listname):
                         response = jsonify(
                             {'message':'listname should contain letters, digits and with a min length of 3'}
@@ -141,7 +142,7 @@ def shoppinglists_management(list_id):
                         response.status_code = 200
                         return response
                     elif request.method == "PUT":
-                        listname = str(request.data.get('listname'))
+                        listname = str(request.data.get('listname')).lower()
                         shopping_lists = ShoppingList.query.filter_by(created_by=user_id)
                         for item in shopping_lists:
                             if item.listname == listname:
@@ -193,7 +194,7 @@ def shoppingitems(list_id):
                 shoppinglist = ShoppingList.query.filter_by(list_id=list_id).first()
                 if shoppinglist:
                     if request.method == "POST":
-                        itemname = request.data.get('itemname')
+                        itemname = str(request.data['itemname']).lower()
                         quantity = request.data.get('quantity')
                         price = request.data.get('price')
                         
@@ -345,7 +346,7 @@ def shoppingitems_management(list_id, item_id):
                             response.status_code = 200
                             return response
                         elif request.method == 'PUT':
-                            itemname = request.data.get('itemname')
+                            itemname = str(request.data['itemname']).lower()
                             quantity = request.data.get('quantity')
                             price = request.data.get('price')
                             item = ShoppingItems.query.filter_by(item_for_list=list_id).filter_by(itemname=itemname).first()
