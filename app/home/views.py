@@ -3,7 +3,7 @@ import json
 import requests
 import re
 
-from flask import request, jsonify, abort, url_for
+from flask import request, jsonify, url_for
 from app.models import User, ShoppingList, ShoppingItems
 
 from . import home
@@ -376,7 +376,7 @@ def shoppingitems_management(list_id, item_id):
                     else:
                         return {'message':'Item with that id does not exist'}, 404  
                 else:
-                    abort(404)
+                    return {'message':'shopping list with that id does not exist'}, 404
             else:
                 response = jsonify({'message':user_id})
                 response.status_code = 401
