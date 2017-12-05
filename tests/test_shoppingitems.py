@@ -13,7 +13,7 @@ class ShoppingitemsTestCase(unittest.TestCase):
         self.app = create_app(config_name="testing")
         self.client = self.app.test_client
         self.shoppingitem = {
-            'itemname':'Wheat Flour',
+            'itemname':'wheat flour',
             'quantity': 12,
             'price' : 1200
             }
@@ -77,7 +77,7 @@ class ShoppingitemsTestCase(unittest.TestCase):
         headers=dict(Authorization="Bearer " + access_token),
         data=self.shoppingitem)
         self.assertEqual(res.status_code, 201)
-        self.assertIn('Wheat Flour', str(res.data))
+        self.assertIn('wheat flour', str(res.data))
 
     def test_shoppingitem_must_be_created_in_a_shoppinglist(self):
         """ Test API can must create a shopping item in a shopping list. """
@@ -88,7 +88,7 @@ class ShoppingitemsTestCase(unittest.TestCase):
         headers=dict(Authorization="Bearer " + access_token),
         data=self.shoppingitem)
         self.assertEqual(res.status_code, 404)
-        self.assertNotIn('Wheat Flour', str(res.data))
+        self.assertNotIn('wheat flour', str(res.data))
 
     def test_duplicate_shoppingitem_creation_fails(self):
         """ Test API cannot create items with same name in one a shopping list. """
@@ -99,10 +99,10 @@ class ShoppingitemsTestCase(unittest.TestCase):
         res = self.client().post('/home/shoppinglists/1/shoppingitems',
         headers=dict(Authorization="Bearer " + access_token), data=self.shoppingitem)
         self.assertEqual(res.status_code, 201)
-        self.assertIn('Wheat Flour', str(res.data))
+        self.assertIn('wheat flour', str(res.data))
         res = self.client().post('/home/shoppinglists/1/shoppingitems',
         headers=dict(Authorization="Bearer " + access_token), data={
-            'itemname':'Wheat Flour',
+            'itemname':'wheat flour',
             'quantity': 12,
             'price' : 1200
         })
@@ -117,15 +117,15 @@ class ShoppingitemsTestCase(unittest.TestCase):
         res = self.client().post('/home/shoppinglists/1/shoppingitems', 
         headers=dict(Authorization="Bearer " + access_token),data=self.shoppingitem)
         self.assertEqual(res.status_code, 201)
-        self.assertIn('Wheat Flour', str(res.data))
+        self.assertIn('wheat flour', str(res.data))
         res = self.client().post('/home/shoppinglists/1/shoppingitems',
         headers=dict(Authorization="Bearer " + access_token), data={
-            'itemname':'Maize Flour',
+            'itemname':'maize flour',
             'quantity': 12,
             'price' : 1000
         })
         self.assertEqual(res.status_code, 201)
-        self.assertIn('Maize Flour', str(res.data))
+        self.assertIn('maize flour', str(res.data))
 
     def test_get_shoppingitems(self):
         """ Test API can get all shopping items in a shopping list. """
@@ -139,7 +139,7 @@ class ShoppingitemsTestCase(unittest.TestCase):
         res = self.client().get('/home/shoppinglists/1/shoppingitems',
         headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(res.status_code, 200)
-        self.assertIn('Wheat Flour', str(res.data))
+        self.assertIn('wheat flour', str(res.data))
 
     def test_edit_shoppingitem(self):
         """ Test API can edit a shopping item in a shopping list. """
@@ -150,15 +150,15 @@ class ShoppingitemsTestCase(unittest.TestCase):
         res = self.client().post('/home/shoppinglists/1/shoppingitems',
         headers=dict(Authorization="Bearer " + access_token), data=self.shoppingitem)
         self.assertEqual(res.status_code, 201)
-        self.assertIn('Wheat Flour', str(res.data))
+        self.assertIn('wheat flour', str(res.data))
         res = self.client().put('/home/shoppinglists/1/shoppingitems/1',
         headers=dict(Authorization="Bearer " + access_token), data={
-            'itemname':'Rice',
+            'itemname':'rice',
             'quantity': 10,
             'price' : 1000
             })
         self.assertEqual(res.status_code, 200)
-        self.assertNotIn('WheatFlour', str(res.data))
+        self.assertNotIn('wheat flour', str(res.data))
 
     def test_delete_shoppingitem(self):
         """ Test API can delete a shopping item in a shopping list. """
@@ -169,11 +169,11 @@ class ShoppingitemsTestCase(unittest.TestCase):
         res = self.client().post('/home/shoppinglists/1/shoppingitems',
         headers=dict(Authorization="Bearer " + access_token), data=self.shoppingitem)
         self.assertEqual(res.status_code, 201)
-        self.assertIn('Wheat Flour', str(res.data))
+        self.assertIn('wheat flour', str(res.data))
         res = self.client().delete('/home/shoppinglists/1/shoppingitems/1',
         headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(res.status_code, 200)
-        self.assertNotIn('Wheat Flour', str(res.data))
+        self.assertNotIn('wheat flour', str(res.data))
 
 if __name__ == '__main__':
     unittest.main()

@@ -46,7 +46,7 @@ class ShoppingListTestCase(unittest.TestCase):
         }
         return self.client().post('/auth/login', data=data)
 
-    def current_list(self, listname="Mashujaa day"):
+    def current_list(self, listname="mashujaa day"):
         """Shopping list creation helper method."""
         data = {'listname':listname}
         self.user_registration()
@@ -64,13 +64,13 @@ class ShoppingListTestCase(unittest.TestCase):
         """ Test API can create a shopping list. """
         res = self.current_list()
         self.assertEqual(res.status_code, 201)
-        self.assertIn('Mashujaa day', str(res.data))
+        self.assertIn('mashujaa day', str(res.data))
 
     def test_duplicate_shoppinglist_creation_fails(self):
         """ Test API can check if a shopping list already exists. """
         res = self.current_list()
         self.assertEqual(res.status_code, 201)
-        self.assertIn('Mashujaa day', str(res.data))
+        self.assertIn('mashujaa day', str(res.data))
         res = self.current_list()
         self.assertEqual(res.status_code, 409)
 
@@ -85,7 +85,7 @@ class ShoppingListTestCase(unittest.TestCase):
             '/home/shoppinglists',
             headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(res.status_code, 200)
-        self.assertIn('Mashujaa day', str(res.data))
+        self.assertIn('mashujaa day', str(res.data))
 
     def test_edit_shoppinglist(self):
         """ Test API can edit a shopping list. """
@@ -95,15 +95,15 @@ class ShoppingListTestCase(unittest.TestCase):
         res = self.client().post(
             '/home/shoppinglists',
             headers=dict(Authorization="Bearer " + access_token),
-            data={'listname':'Cake ingredient'})
+            data={'listname':'cake ingredient'})
         self.assertEqual(res.status_code, 201)
-        self.assertIn('Cake ingredient', str(res.data))
+        self.assertIn('cake ingredient', str(res.data))
         res = self.client().put(
             '/home/shoppinglists/1',
             headers=dict(Authorization="Bearer " + access_token),
-            data={'listname':'Snacks'})
+            data={'listname':'snacks'})
         self.assertEqual(res.status_code, 200)
-        self.assertNotIn('Cake ingredient', str(res.data))
+        self.assertNotIn('cake ingredient', str(res.data))
 
     def test_delete_shoppinglist(self):
         """ Test API can delete a shopping list. """
@@ -114,14 +114,14 @@ class ShoppingListTestCase(unittest.TestCase):
         res = self.client().post(
             '/home/shoppinglists',
             headers=dict(Authorization="Bearer " + access_token),
-            data={'listname':'Snacks'})
+            data={'listname':'snacks'})
         self.assertEqual(res.status_code, 201)
-        self.assertIn('Snacks', str(res.data))
+        self.assertIn('snacks', str(res.data))
         res = self.client().delete(
             '/home/shoppinglists/1',
             headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(res.status_code, 200)
-        self.assertNotIn('Snacks', str(res.data))
+        self.assertNotIn('snacks', str(res.data))
         
 if __name__ == '__main__':     
     unittest.main()
