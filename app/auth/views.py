@@ -4,6 +4,7 @@ from . import auth
 from . import auth as auth_blueprint
 from flask import request, jsonify
 from app.models import User, BlacklistToken
+from app.token_authentication import token_auth_required
 import re
 
 @auth.route('/auth/register', methods=['POST', 'GET'])
@@ -133,37 +134,19 @@ def login():
             return response
 
 @auth.route('/auth/delete_user', methods=['DELETE'])
-def delete_user():
+@token_auth_required
+def delete_user(user_id):
     """API can delete a user."""
-    
-    #Token retrival
-    auth_header = request.headers.get('Authorization', None)
 
-    if not auth_header:
-        response = jsonify({
-            'message':
-            'No token provided!'})
-        response.status_code = 500
-        return response
-    else:
-        token = auth_header.split(" ")
-        access_token = token[1]
-        if access_token:
-            user_id = User.decode_auth_token(access_token)
-            if not isinstance(user_id, str):
-                if request.method == "DELETE":
-                    users = User.query.filter_by(user_id=user_id)
-                    for user in users:
-                        if user.user_id == user_id:
-                            user.delete()
-                            response = jsonify(
-                                {'message':
-                                'Account with username:{} successfully deleted'.format(user.username)})
-                            response.status_code = 202
-                            return response
-            else:
-                response = jsonify({'message':user_id})
-                response.status_code = 401
+    if request.method == "DELETE":
+        users = User.query.filter_by(user_id=user_id)
+        for user in users:
+            if user.user_id == user_id:
+                user.delete()
+                response = jsonify(
+                    {'message':
+                    'Account with username:{} successfully deleted'.format(user.username)})
+                response.status_code = 202
                 return response
 
 @auth.route('/auth/logout', methods=['POST'])
