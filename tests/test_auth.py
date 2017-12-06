@@ -13,7 +13,7 @@ class AuthenticationTestCase(unittest.TestCase):
         self.app = create_app(config_name="testing")
         self.client = self.app.test_client
         self.user = {
-            'username' : 'Berry',
+            'username' : 'berry',
             'email':'keb@gmail.com',
             'password':'Coolday1',
             'repeat_password':'Coolday1'
@@ -32,7 +32,7 @@ class AuthenticationTestCase(unittest.TestCase):
             DB.session.remove()
             DB.drop_all()
 
-    def test_user_registration(self):
+    def test_successful_user_registration(self):
         """ Test API user can register. """
         res = self.client().post('/auth/register', data=self.user)
         self.assertEqual(res.status_code, 201)
@@ -40,18 +40,121 @@ class AuthenticationTestCase(unittest.TestCase):
         result = json.loads(res.data.decode())
         self.assertEqual(result['message'], u"User with email keb@gmail.com successfully registered")
 
-    def test_duplicate_registration_fails(self):
+    def test_duplicate_emails_for_registration_fails(self):
         """ Test API user cannot register with an existing email. """
         res = self.client().post('/auth/register', data=self.user)
         self.assertEqual(res.status_code, 201)
         self.assertIn('keb@gmail', str(res.data))
         res = self.client().post('/auth/register', data={
-            'username' : 'Bri',
+            'username' : 'bri',
             'email':'keb@gmail.com',
             'password':'1Sayhello',
             'repeat_password':'1Sayhello'
             })
         self.assertEqual(res.status_code, 409)
+
+    def test_username_should_be_unique(self):
+        """ Test API user cannot register with an existing username. """
+        res = self.client().post('/auth/register', data=self.user)
+        self.assertEqual(res.status_code, 201)
+        self.assertIn('keb@gmail', str(res.data))
+        res = self.client().post('/auth/register', data={
+            'username' : 'berry',
+            'email':'berry@gmail.com',
+            'password':'1Sayhello',
+            'repeat_password':'1Sayhello'
+            })
+        self.assertEqual(res.status_code, 409)
+
+    def test_username_is_invalid_for_registration(self):
+        """ Test username validation """
+        res = self.client().post('/auth/register', data={
+            'username' : '&&&',
+            'email':'keb@gmail.com',
+            'password':'1Sayhello',
+            'repeat_password':'1Sayhello'
+        })
+        self.assertEqual(res.status_code, 400)
+        result = json.loads(res.data.decode())
+        self.assertEqual(
+            result['message'],
+            u"Username should contain letters, digits and with a min length of 3")
+        res = self.client().post('/auth/register', data={
+            'username':'',
+            'email':'keb@gmail.com',
+            'password':'1Sayhello',
+            'repeat_password':'1Sayhello'
+        })
+        self.assertEqual(res.status_code, 400)
+        result = json.loads(res.data.decode())
+        self.assertEqual(
+            result['message'],
+            u"Please provide username!")
+        
+
+    def test_email_is_invalid__for_registration(self):
+        """ Test email validation """
+        res = self.client().post('/auth/register', data={
+            'username' : 'bri',
+            'email':'keb',
+            'password':'1Sayhello',
+            'repeat_password':'1Sayhello'
+        })
+        self.assertEqual(res.status_code, 400)
+        result = json.loads(res.data.decode())
+        self.assertEqual(
+            result['message'],
+            u"email should contain letters, digits and spaces only: valid format = email@email.com")
+        res = self.client().post('/auth/register', data={
+            'username':'bri',
+            'email':'',
+            'password':'1Sayhello',
+            'repeat_password':'1Sayhello'
+        })
+        self.assertEqual(res.status_code, 400)
+        result = json.loads(res.data.decode())
+        self.assertEqual(
+            result['message'],
+            u"Please provide email!")
+
+    def test_password_is_invalid__for_registration(self):
+        """ Test password validation """
+        res = self.client().post('/auth/register', data={
+            'username' : 'bri',
+            'email':'keb@gmail.com',
+            'password':'123',
+            'repeat_password':'1Sayhello'
+        })
+        self.assertEqual(res.status_code, 400)
+        result = json.loads(res.data.decode())
+        self.assertEqual(
+            result['message'],
+            u"Password must contain: atleast a lowercase letters, atleast a digit, with min-length of 6")
+        res = self.client().post('/auth/register', data={
+            'username':'bri',
+            'email':'keb@gmail.com',
+            'password':'',
+            'repeat_password':''
+        })
+        self.assertEqual(res.status_code, 400)
+        result = json.loads(res.data.decode())
+        self.assertEqual(
+            result['message'],
+            u"Please provide password!")
+
+    def test_password_match_repeat_password(self):
+        """ Test password match """
+        res = self.client().post('/auth/register', data={
+            'username' : 'bri',
+            'email':'keb@gmail.com',
+            'password':'1Sayhello',
+            'repeat_password':'1Sayhello1'
+        })
+        self.assertEqual(res.status_code, 400)
+        result = json.loads(res.data.decode())
+        self.assertEqual(
+            result['message'],
+            u"Password must match")
 
     def test_login(self):
         """ Test API user can login. """
@@ -62,6 +165,39 @@ class AuthenticationTestCase(unittest.TestCase):
         self.assertEqual(results.status_code, 200)
         result = json.loads(results.data.decode())
         self.assertTrue(result['access_token']) 
+
+    def test_no_login_inputs_provided(self):
+        """ Test API user must provide login information. """
+        res = self.client().post('/auth/register', data=self.user)
+        self.assertEqual(res.status_code, 201)
+        self.assertIn('keb@gmail.com', str(res.data))
+        results = self.client().post('/auth/login', data={
+            'email':'',
+            'password':''  
+        })
+        self.assertEqual(results.status_code, 400)
+        result = json.loads(results.data.decode())
+        self.assertEqual(
+            result['message'],
+            u"email or password missing!")
+
+    def test_get_user(self):
+        """ Test API can get users. """
+        res = self.client().post('/auth/register', data=self.user)
+        self.assertEqual(res.status_code, 201)
+        self.assertIn('keb@gmail', str(res.data))
+        results = self.client().get('/auth/register')
+        self.assertEqual(results.status_code, 200)
+        
+
+    def test_no_user_found(self):
+        """ Test API can capture no users found. """
+        results = self.client().get('/auth/register')
+        self.assertEqual(results.status_code, 404)
+        result = json.loads(results.data.decode())
+        self.assertEqual(
+            result['message'],
+            u"No users to display!")
 
     def test_delete_user(self):
         """ Test API can delete a user. """
