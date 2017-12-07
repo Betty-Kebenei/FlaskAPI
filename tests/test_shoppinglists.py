@@ -74,6 +74,21 @@ class ShoppingListTestCase(unittest.TestCase):
         res = self.current_list()
         self.assertEqual(res.status_code, 409)
 
+    def test_listname_validation(self):
+        """ Test API can check if the listname is validated. """
+        self.user_registration()
+        result = self.user_logsin()
+        access_token = json.loads(result.data.decode())['access_token']
+        res = self.client().post(
+            '/home/shoppinglists',
+            headers=dict(Authorization="Bearer " + access_token),
+            data={'listname':'@@@'})
+        self.assertEqual(res.status_code, 400)
+        result = json.loads(res.data.decode())
+        self.assertEqual(
+            result['message'],
+            u"listname should contain letters, digits and with a min length of 3")
+
     def test_show_shoppinglist(self):
         """ Test API can get all shopping lists. """
         self.user_registration()
