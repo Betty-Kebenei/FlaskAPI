@@ -2,9 +2,9 @@ services:
   - postgresql
 before_script:
   - createdb api_test
-  - python manage.py db init
-  - python manage.py db migrate
-  - python manage.py db upgrade
+  - python manage.py DB init
+  - python manage.py DB migrate
+  - python manage.py DB upgrade
 
 language: python
 python:
