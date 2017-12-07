@@ -54,7 +54,7 @@ class ShoppingListTestCase(unittest.TestCase):
         data = {'listname':listname}
         result = self.user_logsin()
 
-        access_token = str(json.loads(result.data)['access_token'])
+        access_token = json.loads(result.data)['access_token']
         res = self.client().post(
             '/home/shoppinglists',
             headers=dict(Authorization="Bearer " + access_token),
@@ -81,7 +81,7 @@ class ShoppingListTestCase(unittest.TestCase):
         """ Test API can check if the listname is validated. """
         self.user_registration()
         result = self.user_logsin()
-        access_token = str(json.loads(result.data)['access_token'])
+        access_token = json.loads(result.data)['access_token']
         res = self.client().post(
             '/home/shoppinglists',
             headers=dict(Authorization="Bearer " + access_token),
@@ -96,7 +96,7 @@ class ShoppingListTestCase(unittest.TestCase):
         """ Test API can get all shopping lists. """
         self.user_registration()
         result = self.user_logsin()
-        access_token = str(json.loads(result.data)['access_token'])
+        access_token = json.loads(result.data)['access_token']
         res = self.current_list()
         self.assertEqual(res.status_code, 201)
         res = self.client().get(
@@ -109,7 +109,7 @@ class ShoppingListTestCase(unittest.TestCase):
         """ Test API can edit a shopping list. """
         self.user_registration()
         result = self.user_logsin()
-        access_token = str(json.loads(result.data)['access_token'])
+        access_token = json.loads(result.data)['access_token']
         res = self.client().post(
             '/home/shoppinglists',
             headers=dict(Authorization="Bearer " + access_token),
@@ -128,7 +128,7 @@ class ShoppingListTestCase(unittest.TestCase):
         self.user_registration()
         result = self.user_logsin()
         self.assertEqual(result.status_code, 200)
-        access_token = str(json.loads(result.data)['access_token'])
+        access_token = json.loads(result.data)['access_token']
         res = self.client().post(
             '/home/shoppinglists',
             headers=dict(Authorization="Bearer " + access_token),
