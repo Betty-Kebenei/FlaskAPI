@@ -109,11 +109,11 @@ def login():
         if user and password:
             if user.verify_password(password):
                 access_token = user.encode_auth_token(user.user_id)
-                
+                print(type(access_token))
                 if access_token:
                     response = jsonify({
                         'message':'Hey {} you are successfully logged in.'.format(user.username),
-                        'access_token': access_token.decode('utf-8')
+                        'access_token': access_token
                         })
                     response.status_code = 200
                     return response
@@ -138,16 +138,15 @@ def login():
 def delete_user(user_id):
     """API can delete a user."""
 
-    if request.method == "DELETE":
-        users = User.query.filter_by(user_id=user_id)
-        for user in users:
-            if user.user_id == user_id:
-                user.delete()
-                response = jsonify(
-                    {'message':
-                    'Account with username:{} successfully deleted'.format(user.username)})
-                response.status_code = 202
-                return response
+    users = User.query.filter_by(user_id=user_id)
+    for user in users:
+        if user.user_id == user_id:
+            user.delete()
+            response = jsonify(
+                {'message':
+                'Account with username:{} successfully deleted'.format(user.username)})
+            response.status_code = 202
+            return response
 
 @auth.route('/auth/logout', methods=['POST'])
 def logout():
