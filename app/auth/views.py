@@ -12,8 +12,8 @@ def register():
     """ API POST user details, thus registering a user. """
 
     if request.method == 'POST':
-        username = request.data['username']
-        email = request.data['email']
+        username = str(request.data['username']).lower()
+        email = str(request.data['email']).lower()
         password = request.data['password']
         repeat_password = request.data['repeat_password']
 
@@ -113,7 +113,7 @@ def login():
                 if access_token:
                     response = jsonify({
                         'message':'Hey {} you are successfully logged in.'.format(user.username),
-                        'access_token': access_token.decode()
+                        'access_token': access_token.decode('utf-8')
                         })
                     response.status_code = 200
                     return response

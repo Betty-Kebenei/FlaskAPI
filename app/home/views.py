@@ -28,25 +28,24 @@ def shoppinglists(user_id):
             )
             response.status_code = 400
             return response
-        if not listname:
-            return {'mesaage': 'No input provided'}, 400
+        
+        list_exists = ShoppingList.query.filter_by(created_by=user_id).filter_by(listname=listname).first()
+        if not list_exists:
+            shoppinglist = ShoppingList(listname=listname, created_by=user_id)
+            shoppinglist.save()
+            response = jsonify({
+                'list_id': shoppinglist.list_id,
+                'listname': shoppinglist.listname,
+                'created_by': shoppinglist.created_by
+                })
+            return {'message':'shoppinglist with name {} successfully created'.format(
+                    shoppinglist.listname)}, 201
         else:
-            list_exists = ShoppingList.query.filter_by(created_by=user_id).filter_by(listname=listname).first()
-            if list_exists:
-                return {
-                        'message':
-                        'shoppinglist with that name already exists.'
-                        }, 409        
-            else:
-                shoppinglist = ShoppingList(listname=listname, created_by=user_id)
-                shoppinglist.save()
-                response = jsonify({
-                    'list_id': shoppinglist.list_id,
-                    'listname': shoppinglist.listname,
-                    'created_by': shoppinglist.created_by
-                    })
-                return {'message':'shoppinglist with name {} successfully created'.format(
-                        shoppinglist.listname)}, 201
+            response = jsonify({
+                'message':
+                'shoppinglist with that name already exists.'})
+            response.status_code = 409
+            return response
 
     elif request.method == "GET":
         results = []
