@@ -14,6 +14,7 @@ class ShoppingListTestCase(unittest.TestCase):
         self.client = self.app.test_client
         with self.app.app_context():
             DB.create_all()
+
     
     def tearDown(self):
         """ A method that is called after each test. """
@@ -40,16 +41,17 @@ class ShoppingListTestCase(unittest.TestCase):
 
     def user_logsin(self, email="berry@berry.com", password="A1234a"):
         """User logging in helper method."""
+        self.user_registration()
         data = {
             'email': email,
             'password': password
         }
-        return self.client().post('/auth/login', data=data)
-
+        response = self.client().post('/auth/login', data=data)
+        return  response
+     
     def current_list(self, listname="mashujaa day"):
         """Shopping list creation helper method."""
         data = {'listname':listname}
-        self.user_registration()
         result = self.user_logsin()
 
         access_token = str(json.loads(result.data)['access_token'])

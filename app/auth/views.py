@@ -109,7 +109,6 @@ def login():
         if user and password:
             if user.verify_password(password):
                 access_token = user.encode_auth_token(user.user_id)
-                print(type(access_token))
                 if access_token:
                     response = jsonify({
                         'message':'Hey {} you are successfully logged in.'.format(user.username),
