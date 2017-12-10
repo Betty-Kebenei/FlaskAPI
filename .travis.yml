@@ -5,7 +5,7 @@ env:
   global:
   - export DATABASE_URL="postgresql://localhost/api_test"
   - export SECRET_KEY="dvghjmsbdj,asdjs,fkdfcdsf N"
-  - export FLASK_CONFIG=testing
+  - export APP_CONFIG=testing
 
 before_script:
   - createdb api_test
