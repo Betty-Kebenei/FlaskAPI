@@ -1,15 +1,28 @@
 services: 
   - postgresql
+
+env:
+  global:
+  - export DATABASE_URL="postgresql://localhost/api_test"
+  - export SECRET_KEY="dvghjmsbdj,asdjs,fkdfcdsf N"
+  - export APP_CONFIG=testing
+
 before_script:
   - createdb api_test
+  - python manage.py DB init
+  - python manage.py DB migrate
+  - python manage.py DB upgrade
+
 language: python
 python:
   - "2.7"
+  - "3.6"
 install:
   - pip install -r requirements.txt
   - pip install coveralls
+
 script:
-  - nosetests --with-coverage
+  - nosetests -sv tests --with-coverage
 after_success:
   - coveralls
 

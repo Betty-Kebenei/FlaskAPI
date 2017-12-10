@@ -1,5 +1,4 @@
-
-
+[![Build Status](https://travis-ci.org/Betty-Kebenei/FlaskAPI.svg?branch=master)](https://travis-ci.org/Betty-Kebenei/FlaskAPI)
 [![Coverage Status](https://coveralls.io/repos/github/Betty-Kebenei/FlaskAPI/badge.svg?branch=master)](https://coveralls.io/github/Betty-Kebenei/FlaskAPI?branch=master)
 
 # Flask Restful API
