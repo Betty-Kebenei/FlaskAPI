@@ -16,6 +16,7 @@ def token_auth_required(function):
         else:
             token = auth_header.split("Bearer ")
             access_token = token[1]
+            access_token = access_token.encode()
             if access_token:
                 user_id = User.decode_auth_token(access_token)
                 if not isinstance(user_id, str):
