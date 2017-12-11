@@ -22,7 +22,7 @@ install:
   - pip install coveralls
 
 script:
-  - nosetests -sv tests --with-coverage
+  - nosetests -sv tests --with-coverage app/ config
 after_success:
   - coveralls
 
