@@ -111,18 +111,17 @@ def shoppinglists_management(user_id, list_id):
             return response
         elif request.method == "PUT":
             listname = str(request.data.get('listname')).lower()
-            shopping_lists = ShoppingList.query.filter_by(created_by=user_id)
-            for item in shopping_lists:
-                if item.listname == listname:
-                    return {'message':'There exists a shopping list with such a name'}, 409
-                else:
-                    shoppinglist.listname = listname
-                    shoppinglist.save()
-                    response = jsonify({
-                        'list_id': shoppinglist.list_id,
-                        'listname': shoppinglist.listname
-                    })
-                    return {'message':'shoppinglist with id {} successfully edited. '.format(shoppinglist.list_id)}, 200
+            shopping_lists = ShoppingList.query.filter_by(created_by=user_id).filter_by(listname=listname).first()
+            if shopping_lists:
+                return {'message':'There exists a shopping list with such a name'}, 409
+            else:
+                shoppinglist.listname = listname
+                shoppinglist.save()
+                response = jsonify({
+                    'list_id': shoppinglist.list_id,
+                    'listname': shoppinglist.listname
+                })
+                return {'message':'shoppinglist with id {} successfully edited. '.format(shoppinglist.list_id)}, 200
         else:
             shoppinglist.delete()
             return {'message':'Shoppinglist with id {} successfully deleted'.format(shoppinglist.list_id)}, 200
