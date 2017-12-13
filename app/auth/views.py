@@ -99,38 +99,37 @@ def register():
             response.status_code = 404
             return response
 
-@auth.route('/auth/login', methods=['GET', 'POST'])
+@auth.route('/auth/login', methods=['POST'])
 def login():
     """ API to login in. """
 
-    if request.method == "POST":
-        user = User.query.filter_by(email=request.data['email']).first()
-        password = request.data['password']
-        if user and password:
-            if user.verify_password(password):
-                access_token = user.encode_auth_token(user.user_id)
-                if access_token:
-                    response = jsonify({
-                        'message':'Hey {} you are successfully logged in.'.format(user.username),
-                        'access_token': access_token.decode()
-                        })
-                    response.status_code = 200
-                    return response
-            else:
+    user = User.query.filter_by(email=request.data['email']).first()
+    password = request.data['password']
+    if user and password:
+        if user.verify_password(password):
+            access_token = user.encode_auth_token(user.user_id)
+            if access_token:
                 response = jsonify({
-                    'message':
-                    'Incorrect password!'
-                    .format(user.username)})
-                response.status_code = 404
+                    'message':'Hey {} you are successfully logged in.'.format(user.username),
+                    'access_token': access_token.decode()
+                    })
+                response.status_code = 200
                 return response
-
         else:
             response = jsonify({
                 'message':
-                'email or password missing!'
-                })
-            response.status_code = 400
+                'Incorrect password!'
+                .format(user.username)})
+            response.status_code = 404
             return response
+
+    else:
+        response = jsonify({
+            'message':
+            'email or password missing!'
+            })
+        response.status_code = 400
+        return response
 
 @auth.route('/auth/delete_user', methods=['DELETE'])
 @token_auth_required
