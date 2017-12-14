@@ -90,7 +90,7 @@ class ShoppingListTestCase(unittest.TestCase):
         result = json.loads(res.data.decode())
         self.assertEqual(
             result['message'],
-            u"listname should contain letters, digits and with a min length of 3")
+            u"listname should contain letters, digits and with a min length of 1")
 
     def test_show_shoppinglist(self):
         """ Test API can get all shopping lists. """
