@@ -99,4 +99,10 @@ An endpoint that has public access as false can only be accessed after a token b
 | **DELETE** | /home/shoppinglists/{listid}/shoppingitems/{itemid} | FALSE | A user can delete a single shopping item by item id |
 
 
+## Swagger Documentation
 
+https://app.swaggerhub.com/apis/Andela42/FlaskAPI/1.0.0#/
+
+## Deployment to Heroku
+
+https://flaskapiv1.herokuapp.com/
