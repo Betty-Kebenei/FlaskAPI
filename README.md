@@ -105,4 +105,4 @@ https://app.swaggerhub.com/apis/Andela42/FlaskAPI/1.0.0#/
 
 ## Deployment to Heroku
 
-https://flaskapiv1.herokuapp.com/
+https://flaskapiv1.herokuapp.com/auth_user
