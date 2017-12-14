@@ -24,10 +24,10 @@ def register():
                     )
                 response.status_code = 400
                 return response
-            if not re.match(r"^[\w-]+@([\w-]+\.)+[\w]+$", email):
+            if not re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
                 response = jsonify(
-                {'message':'email should contain letters, digits and spaces only: '
-                            'valid format = email@email.com'}
+                {'message':
+                'Invalid email! A valid email should contain letters, digits, underscores, hyphens and decimals. e.g me.name@kenya.co.ke'}
                 )
                 response.status_code = 400
                 return response
