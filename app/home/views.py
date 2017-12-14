@@ -22,9 +22,9 @@ def shoppinglists(user_id):
 
     if request.method == "POST":
         listname = str(request.data["listname"]).lower()
-        if not re.match(r"(?=^.{3,}$)^[A-Za-z0-9_-]+( +[A-Za-z0-9_-]+)*$", listname):
+        if not re.match(r"(?=^.{1,}$)^[A-Za-z0-9_-]+( +[A-Za-z0-9_-]+)*$", listname):
             response = jsonify(
-                {'message':'listname should contain letters, digits and with a min length of 3'}
+                {'message':'listname should contain letters, digits and with a min length of 1'}
             )
             response.status_code = 400
             return response
@@ -87,13 +87,16 @@ def shoppinglists(user_id):
     
     else:
         shopping_lists = ShoppingList.query.filter_by(created_by=user_id)
-        for item in shopping_lists:
-            item.delete()
-        response = jsonify({
-            'message':
-            'All shopping lists successfully deleted'})
-        response.status_code = 200
-        return response
+        if shopping_lists:
+            for item in shopping_lists:
+                item.delete()
+            response = jsonify({
+                'message':
+                'All shopping lists successfully deleted'})
+            response.status_code = 200
+            return response
+        else:
+            return {'message':'No shopping lists to delete'}, 404 
 
 @home.route('/home/shoppinglists/<list_id>', methods=['GET', 'PUT', 'DELETE'])
 @token_auth_required
@@ -126,7 +129,7 @@ def shoppinglists_management(user_id, list_id):
             shoppinglist.delete()
             return {'message':'Shoppinglist with id {} successfully deleted'.format(shoppinglist.list_id)}, 200
     else:
-        return {'messsage': 'No shopping with that id'}, 404
+        return {'messsage': 'There is no shopping list with that id'}, 404
 
 @home.route('/home/shoppinglists/<list_id>/shoppingitems', methods=['POST', 'GET', 'DELETE'])
 @token_auth_required
@@ -154,7 +157,7 @@ def shoppingitems(user_id, list_id):
                                     })
                     response.status_code = 400
                     return response
-                if not re.match(r"(?=^.{1,}$)^[A-Za-z0-9_-]+( +[A-Za-z0-9_-]+)*$", quantity):
+                if not re.match(r"(?=^.{1,}$)^[A-Za-z0-9_.-]+( +[A-Za-z0-9_-]+)*$", quantity):
                     response = jsonify({
                                     'message':
                                     'Quantity should contain letters, digits and spaces'
@@ -243,17 +246,20 @@ def shoppingitems(user_id, list_id):
                 return {'message':'No items to display'}, 404
         else:
             shopping_items = ShoppingItems.query.filter_by(item_for_list=list_id)
-            for item in shopping_items:
-                item.delete()
-            response = jsonify({
-                'message':
-                'All shopping items successfully deleted'})
-            response.status_code = 200
-            return response
+            if shopping_items:
+                for item in shopping_items:
+                    item.delete()
+                response = jsonify({
+                    'message':
+                    'All shopping items successfully deleted!'})
+                response.status_code = 200
+                return response
+            else:
+                return {'message':'There are no items to delete'}, 404
     else:
         response = jsonify({
                 'message':
-                'There is no shopping list with that id to add items to'})
+                'There is no shopping list with that id!'})
         response.status_code = 404
         return response
 
@@ -306,4 +312,4 @@ def shoppingitems_management(user_id, list_id, item_id):
         else:
             return {'message':'Item with that id does not exist'}, 404  
     else:
-        return {'message':'shopping list with that id does not exist'}, 404
+        return {'message':'Shopping list with that id does not exist'}, 404
