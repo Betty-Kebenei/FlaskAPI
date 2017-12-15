@@ -1,6 +1,6 @@
 from functools import wraps
 from flask import jsonify, request
-from app.models import User
+from app.models import User, BlacklistToken
 
 def token_auth_required(function):
     
@@ -18,11 +18,19 @@ def token_auth_required(function):
             access_token = token[1]
             access_token = access_token.encode()
             if access_token:
-                user_id = User.decode_auth_token(access_token)
-                if not isinstance(user_id, str):
-                    user_id = user_id
+                blacklisted = BlacklistToken.query.filter_by(token=access_token).first()
+                if not blacklisted:
+                    user_id = User.decode_auth_token(access_token)
+                    if not isinstance(user_id, str):
+                        user_id = user_id
+                    else:
+                        response = jsonify({'message':user_id})
+                        response.status_code = 401
+                        return response
                 else:
-                    response = jsonify({'message':user_id})
+                    response = jsonify({
+                        'message':
+                        'Invalid token!'})
                     response.status_code = 401
                     return response
             else:

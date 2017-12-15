@@ -7,6 +7,7 @@ from app.models import User, BlacklistToken
 from app.token_authentication import token_auth_required
 import re
 
+@auth.route('/')
 @auth.route('/auth/register', methods=['POST', 'GET'])
 def register():
     """ API POST user details, thus registering a user. """
@@ -18,16 +19,17 @@ def register():
         repeat_password = request.data['repeat_password']
 
         if username and email and password and repeat_password: 
-            if not re.match(r"(?=^.{3,}$)^[A-Za-z0-9_-]+( +[A-Za-z0-9_-]+)*$", username):
+            if not re.match(r"(?=^.{3,}$)(?=.*[a-z])^[A-Za-z0-9_-]+( +[A-Za-z0-9_-]+)*$", username):
                 response = jsonify(
-                    {'message':'Username should contain letters, digits and with a min length of 3'}
+                    {'message':
+                    'Username must contain atleast letter; plus other letters or digits and with a min length of 3'}
                     )
                 response.status_code = 400
                 return response
-            if not re.match(r"^[\w-]+@([\w-]+\.)+[\w]+$", email):
+            if not re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
                 response = jsonify(
-                {'message':'email should contain letters, digits and spaces only: '
-                            'valid format = email@email.com'}
+                {'message':
+                'Invalid email! A valid email should contain letters, digits, underscores, hyphens and decimals. e.g me.name@kenya.co.ke'}
                 )
                 response.status_code = 400
                 return response
@@ -99,38 +101,37 @@ def register():
             response.status_code = 404
             return response
 
-@auth.route('/auth/login', methods=['GET', 'POST'])
+@auth.route('/auth/login', methods=['POST'])
 def login():
     """ API to login in. """
 
-    if request.method == "POST":
-        user = User.query.filter_by(email=request.data['email']).first()
-        password = request.data['password']
-        if user and password:
-            if user.verify_password(password):
-                access_token = user.encode_auth_token(user.user_id)
-                if access_token:
-                    response = jsonify({
-                        'message':'Hey {} you are successfully logged in.'.format(user.username),
-                        'access_token': access_token.decode()
-                        })
-                    response.status_code = 200
-                    return response
-            else:
+    user = User.query.filter_by(email=request.data['email']).first()
+    password = request.data['password']
+    if user and password:
+        if user.verify_password(password):
+            access_token = user.encode_auth_token(user.user_id)
+            if access_token:
                 response = jsonify({
-                    'message':
-                    'Incorrect password!'
-                    .format(user.username)})
-                response.status_code = 404
+                    'message':'Hey {} you are successfully logged in.'.format(user.username),
+                    'access_token': access_token.decode()
+                    })
+                response.status_code = 200
                 return response
-
         else:
             response = jsonify({
                 'message':
-                'email or password missing!'
-                })
-            response.status_code = 400
+                'Incorrect password!'
+                .format(user.username)})
+            response.status_code = 404
             return response
+
+    else:
+        response = jsonify({
+            'message':
+            'email or password missing!'
+            })
+        response.status_code = 400
+        return response
 
 @auth.route('/auth/delete_user', methods=['DELETE'])
 @token_auth_required

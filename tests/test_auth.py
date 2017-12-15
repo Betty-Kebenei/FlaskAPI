@@ -78,7 +78,7 @@ class AuthenticationTestCase(unittest.TestCase):
         result = json.loads(res.data.decode())
         self.assertEqual(
             result['message'],
-            u"Username should contain letters, digits and with a min length of 3")
+            u"Username must contain atleast letter; plus other letters or digits and with a min length of 3")
         res = self.client().post('/auth/register', data={
             'username':'',
             'email':'keb@gmail.com',
@@ -104,7 +104,7 @@ class AuthenticationTestCase(unittest.TestCase):
         result = json.loads(res.data.decode())
         self.assertEqual(
             result['message'],
-            u"email should contain letters, digits and spaces only: valid format = email@email.com")
+            u"Invalid email! A valid email should contain letters, digits, underscores, hyphens and decimals. e.g me.name@kenya.co.ke")
         res = self.client().post('/auth/register', data={
             'username':'bri',
             'email':'',

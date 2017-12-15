@@ -85,18 +85,24 @@ An endpoint that has public access as false can only be accessed after a token b
 | **POST** | /auth/login | TRUE | Existing user can login |
 | **GET** | /auth/register | TRUE | A user can see all the registered users |
 | **DELETE** | /auth/delete_user | FALSE | A user can delete his/her own account |
-| **POST** | /home/shoppinglists | FALSE | A user can create a shopping list |
-| **GET** | /home/shoppinglists | FALSE | A user can get all the shopping lists |
-| **DELETE** | /home/shoppinglists | FALSE | A user can delete all the shopping lists |
-| **GET** | /home/shoppinglists/{listid} | FALSE | A user can get a single shopping list by list id |
-| **PUT** | /home/shoppinglists/{listid} | FALSE | A user can edit a single shopping list by list id |
-| **DELETE** | /home/shoppinglists/{listid} | FALSE | A user can delete a single shopping list by list id |
-| **POST** | /home/shoppinglists/{listid}/shoppingitems | FALSE | A user can create a shopping item |
-| **GET** | /home/shoppinglists{listid}/shoppingitems | FALSE | A user can get all the shopping items in a shopping list |
-| **DELETE** | /home/shoppinglists{listid}/shoppingitems | FALSE | A user can delete all the shopping items in a shopping list |
-| **GET** | /home/shoppinglists/{listid}/shoppingitems/{itemid} | FALSE | A user can get a single shopping item by item id |
-| **PUT** | /home/shoppinglists/{listid}/shoppingitems/{itemid} | FALSE | A user can edit a single shopping item by item id |
-| **DELETE** | /home/shoppinglists/{listid}/shoppingitems/{itemid} | FALSE | A user can delete a single shopping item by item id |
+| **POST** | /shoppinglists | FALSE | A user can create a shopping list |
+| **GET** | /shoppinglists | FALSE | A user can get all the shopping lists |
+| **DELETE** | /shoppinglists | FALSE | A user can delete all the shopping lists |
+| **GET** | /shoppinglists/{listid} | FALSE | A user can get a single shopping list by list id |
+| **PUT** | /shoppinglists/{listid} | FALSE | A user can edit a single shopping list by list id |
+| **DELETE** | /shoppinglists/{listid} | FALSE | A user can delete a single shopping list by list id |
+| **POST** | /shoppinglists/{listid}/shoppingitems | FALSE | A user can create a shopping item |
+| **GET** | /shoppinglists{listid}/shoppingitems | FALSE | A user can get all the shopping items in a shopping list |
+| **DELETE** | /shoppinglists{listid}/shoppingitems | FALSE | A user can delete all the shopping items in a shopping list |
+| **GET** | /shoppinglists/{listid}/shoppingitems/{itemid} | FALSE | A user can get a single shopping item by item id |
+| **PUT** | /shoppinglists/{listid}/shoppingitems/{itemid} | FALSE | A user can edit a single shopping item by item id |
+| **DELETE** | /shoppinglists/{listid}/shoppingitems/{itemid} | FALSE | A user can delete a single shopping item by item id |
 
 
+## Swagger Documentation
 
+https://app.swaggerhub.com/apis/Andela42/FlaskAPI/1.0.0#/
+
+## Deployment to Heroku
+
+https://flaskapiv1.herokuapp.com/
