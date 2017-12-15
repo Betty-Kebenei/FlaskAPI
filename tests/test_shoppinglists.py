@@ -56,7 +56,7 @@ class ShoppingListTestCase(unittest.TestCase):
 
         access_token = json.loads(result.data.decode())['access_token']
         res = self.client().post(
-            '/home/shoppinglists',
+            '/shoppinglists',
             headers=dict(Authorization="Bearer " + access_token),
             data=data)
         return res
@@ -83,7 +83,7 @@ class ShoppingListTestCase(unittest.TestCase):
         result = self.user_logsin()
         access_token = json.loads(result.data.decode())['access_token']
         res = self.client().post(
-            '/home/shoppinglists',
+            '/shoppinglists',
             headers=dict(Authorization="Bearer " + access_token),
             data={'listname':'@@@'})
         self.assertEqual(res.status_code, 400)
@@ -100,7 +100,7 @@ class ShoppingListTestCase(unittest.TestCase):
         res = self.current_list()
         self.assertEqual(res.status_code, 201)
         res = self.client().get(
-            '/home/shoppinglists',
+            '/shoppinglists',
             headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(res.status_code, 200)
         self.assertIn('mashujaa day', str(res.data))
@@ -111,13 +111,13 @@ class ShoppingListTestCase(unittest.TestCase):
         result = self.user_logsin()
         access_token = json.loads(result.data.decode())['access_token']
         res = self.client().post(
-            '/home/shoppinglists',
+            '/shoppinglists',
             headers=dict(Authorization="Bearer " + access_token),
             data={'listname':'cake ingredient'})
         self.assertEqual(res.status_code, 201)
         self.assertIn('cake ingredient', str(res.data))
         res = self.client().put(
-            '/home/shoppinglists/1',
+            '/shoppinglists/1',
             headers=dict(Authorization="Bearer " + access_token),
             data={'listname':'snacks'})
         self.assertEqual(res.status_code, 200)
@@ -130,13 +130,13 @@ class ShoppingListTestCase(unittest.TestCase):
         self.assertEqual(result.status_code, 200)
         access_token = json.loads(result.data.decode())['access_token']
         res = self.client().post(
-            '/home/shoppinglists',
+            '/shoppinglists',
             headers=dict(Authorization="Bearer " + access_token),
             data={'listname':'snacks'})
         self.assertEqual(res.status_code, 201)
         self.assertIn('snacks', str(res.data))
         res = self.client().delete(
-            '/home/shoppinglists/1',
+            '/shoppinglists/1',
             headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(res.status_code, 200)
         self.assertNotIn('snacks', str(res.data))

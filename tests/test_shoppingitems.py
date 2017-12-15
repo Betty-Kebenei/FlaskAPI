@@ -60,7 +60,7 @@ class ShoppingitemsTestCase(unittest.TestCase):
         result = self.user_logsin()
         access_token = json.loads(result.data.decode())['access_token']
         res = self.client().post(
-            '/home/shoppinglists',
+            '/shoppinglists',
             headers=dict(Authorization="Bearer " + access_token),
             data=data)
         return res
@@ -73,7 +73,7 @@ class ShoppingitemsTestCase(unittest.TestCase):
         self.user_registration()
         result = self.user_logsin()
         access_token = json.loads(result.data.decode())['access_token']
-        res = self.client().post('/home/shoppinglists/1/shoppingitems', 
+        res = self.client().post('/shoppinglists/1/shoppingitems', 
         headers=dict(Authorization="Bearer " + access_token),
         data=self.shoppingitem)
         self.assertEqual(res.status_code, 201)
@@ -84,7 +84,7 @@ class ShoppingitemsTestCase(unittest.TestCase):
         self.user_registration()
         result = self.user_logsin()
         access_token = json.loads(result.data.decode())['access_token']
-        res = self.client().post('/home/shoppinglists/1/shoppingitems',
+        res = self.client().post('/shoppinglists/1/shoppingitems',
         headers=dict(Authorization="Bearer " + access_token),
         data=self.shoppingitem)
         self.assertEqual(res.status_code, 404)
@@ -96,11 +96,11 @@ class ShoppingitemsTestCase(unittest.TestCase):
         self.user_registration()
         result = self.user_logsin()
         access_token = json.loads(result.data.decode())['access_token']
-        res = self.client().post('/home/shoppinglists/1/shoppingitems',
+        res = self.client().post('/shoppinglists/1/shoppingitems',
         headers=dict(Authorization="Bearer " + access_token), data=self.shoppingitem)
         self.assertEqual(res.status_code, 201)
         self.assertIn('wheat flour', str(res.data))
-        res = self.client().post('/home/shoppinglists/1/shoppingitems',
+        res = self.client().post('/shoppinglists/1/shoppingitems',
         headers=dict(Authorization="Bearer " + access_token), data={
             'itemname':'wheat flour',
             'quantity': 12,
@@ -114,11 +114,11 @@ class ShoppingitemsTestCase(unittest.TestCase):
         self.user_registration()
         result = self.user_logsin()
         access_token = json.loads(result.data.decode())['access_token']
-        res = self.client().post('/home/shoppinglists/1/shoppingitems', 
+        res = self.client().post('/shoppinglists/1/shoppingitems', 
         headers=dict(Authorization="Bearer " + access_token),data=self.shoppingitem)
         self.assertEqual(res.status_code, 201)
         self.assertIn('wheat flour', str(res.data))
-        res = self.client().post('/home/shoppinglists/1/shoppingitems',
+        res = self.client().post('/shoppinglists/1/shoppingitems',
         headers=dict(Authorization="Bearer " + access_token), data={
             'itemname':'maize flour',
             'quantity': 12,
@@ -133,10 +133,10 @@ class ShoppingitemsTestCase(unittest.TestCase):
         self.user_registration()
         result = self.user_logsin()
         access_token = json.loads(result.data.decode())['access_token']
-        res = self.client().post('/home/shoppinglists/1/shoppingitems',
+        res = self.client().post('/shoppinglists/1/shoppingitems',
         headers=dict(Authorization="Bearer " + access_token), data=self.shoppingitem)
         self.assertEqual(res.status_code, 201)
-        res = self.client().get('/home/shoppinglists/1/shoppingitems',
+        res = self.client().get('/shoppinglists/1/shoppingitems',
         headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(res.status_code, 200)
         self.assertIn('wheat flour', str(res.data))
@@ -147,11 +147,11 @@ class ShoppingitemsTestCase(unittest.TestCase):
         self.user_registration()
         result = self.user_logsin()
         access_token = json.loads(result.data.decode())['access_token']
-        res = self.client().post('/home/shoppinglists/1/shoppingitems',
+        res = self.client().post('/shoppinglists/1/shoppingitems',
         headers=dict(Authorization="Bearer " + access_token), data=self.shoppingitem)
         self.assertEqual(res.status_code, 201)
         self.assertIn('wheat flour', str(res.data))
-        res = self.client().put('/home/shoppinglists/1/shoppingitems/1',
+        res = self.client().put('/shoppinglists/1/shoppingitems/1',
         headers=dict(Authorization="Bearer " + access_token), data={
             'itemname':'rice',
             'quantity': 10,
@@ -166,11 +166,11 @@ class ShoppingitemsTestCase(unittest.TestCase):
         self.user_registration()
         result = self.user_logsin()
         access_token = json.loads(result.data.decode())['access_token']
-        res = self.client().post('/home/shoppinglists/1/shoppingitems',
+        res = self.client().post('/shoppinglists/1/shoppingitems',
         headers=dict(Authorization="Bearer " + access_token), data=self.shoppingitem)
         self.assertEqual(res.status_code, 201)
         self.assertIn('wheat flour', str(res.data))
-        res = self.client().delete('/home/shoppinglists/1/shoppingitems/1',
+        res = self.client().delete('/shoppinglists/1/shoppingitems/1',
         headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(res.status_code, 200)
         self.assertNotIn('wheat flour', str(res.data))
