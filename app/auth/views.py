@@ -7,6 +7,7 @@ from app.models import User, BlacklistToken
 from app.token_authentication import token_auth_required
 import re
 
+@auth.route('/')
 @auth.route('/auth/register', methods=['POST', 'GET'])
 def register():
     """ API POST user details, thus registering a user. """
@@ -18,7 +19,7 @@ def register():
         repeat_password = request.data['repeat_password']
 
         if username and email and password and repeat_password: 
-            if not re.match(r"(?=^.{3,}$)^[A-Za-z0-9_-]+( +[A-Za-z0-9_-]+)*$", username):
+            if not re.match(r"(?=^.{3,}$)(?=.*[a-z])^[A-Za-z0-9_-]+( +[A-Za-z0-9_-]+)*$", username):
                 response = jsonify(
                     {'message':'Username should contain letters, digits and with a min length of 3'}
                     )
