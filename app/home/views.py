@@ -10,7 +10,7 @@ from app.token_authentication import token_auth_required
 from . import home
 from . import home as home_blueprint
 
-@home.route('/home/shoppinglists', methods=['POST', 'GET', 'DELETE'])
+@home.route('/shoppinglists', methods=['POST', 'GET', 'DELETE'])
 @token_auth_required
 def shoppinglists(user_id):
     """ API that GET and POST shopping lists. """
@@ -98,7 +98,7 @@ def shoppinglists(user_id):
         else:
             return {'message':'No shopping lists to delete'}, 404 
 
-@home.route('/home/shoppinglists/<list_id>', methods=['GET', 'PUT', 'DELETE'])
+@home.route('/shoppinglists/<list_id>', methods=['GET', 'PUT', 'DELETE'])
 @token_auth_required
 def shoppinglists_management(user_id, list_id):
     """ API that GET, PUT and DELETE a shopping list. """
@@ -131,7 +131,7 @@ def shoppinglists_management(user_id, list_id):
     else:
         return {'messsage': 'There is no shopping list with that id'}, 404
 
-@home.route('/home/shoppinglists/<list_id>/shoppingitems', methods=['POST', 'GET', 'DELETE'])
+@home.route('/shoppinglists/<list_id>/shoppingitems', methods=['POST', 'GET', 'DELETE'])
 @token_auth_required
 def shoppingitems(user_id, list_id):
     """ API that GET and POST items from/to a shopping list. """
@@ -263,7 +263,7 @@ def shoppingitems(user_id, list_id):
         response.status_code = 404
         return response
 
-@home.route('/home/shoppinglists/<list_id>/shoppingitems/<item_id>', methods=['GET', 'PUT', 'DELETE'])
+@home.route('/shoppinglists/<list_id>/shoppingitems/<item_id>', methods=['GET', 'PUT', 'DELETE'])
 @token_auth_required
 def shoppingitems_management(user_id, list_id, item_id):
     """ API that GET, PUT and DELETE items from/to a shopping list. """
