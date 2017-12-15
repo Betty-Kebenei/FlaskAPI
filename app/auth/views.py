@@ -21,7 +21,8 @@ def register():
         if username and email and password and repeat_password: 
             if not re.match(r"(?=^.{3,}$)(?=.*[a-z])^[A-Za-z0-9_-]+( +[A-Za-z0-9_-]+)*$", username):
                 response = jsonify(
-                    {'message':'Username should contain letters, digits and with a min length of 3'}
+                    {'message':
+                    'Username must contain atleast letter; plus other letters or digits and with a min length of 3'}
                     )
                 response.status_code = 400
                 return response
