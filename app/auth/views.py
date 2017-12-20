@@ -52,8 +52,7 @@ def register():
                     user = User(
                         username=username,
                         email=email,
-                        password=password,
-                        repeat_password=repeat_password
+                        password=password
                     )
                     user.save()
                     response = jsonify(
