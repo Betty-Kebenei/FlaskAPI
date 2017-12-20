@@ -13,15 +13,13 @@ class User(DB.Model):
     username = DB.Column(DB.String(50), unique=True)
     email = DB.Column(DB.String(50), unique=True)
     password = DB.Column(DB.String(128))
-    repeat_password = DB.Column(DB.String(128))
     shoppinglists = DB.relationship('ShoppingList', backref='ShoppingList.list_id', cascade="all, delete-orphan")
 
-    def __init__(self, username, email, password, repeat_password):
+    def __init__(self, username, email, password):
         """ initilization """
         self.username = username
         self.email = email
         self.password = Bcrypt().generate_password_hash(password)
-        self.repeat_password = password
 
     def verify_password(self, password):
         """Validate password during signin."""
