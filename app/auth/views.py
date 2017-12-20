@@ -8,6 +8,7 @@ from app.token_authentication import token_auth_required
 import re
 
 @auth.route('/')
+
 @auth.route('/auth/register', methods=['POST', 'GET'])
 def register():
     """ API POST user details, thus registering a user. """
