@@ -8,6 +8,9 @@ from app.token_authentication import token_auth_required
 import re
 
 @auth.route('/')
+def heroku():
+    return render_template('https://app.swaggerhub.com/apis/Andela42/FlaskAPI/1.0.0#/')
+
 @auth.route('/auth/register', methods=['POST', 'GET'])
 def register():
     """ API POST user details, thus registering a user. """
