@@ -7,16 +7,13 @@ from app.models import User, BlacklistToken
 from app.token_authentication import token_auth_required
 import re
 
-@auth.route('/')
-def home():
-    return redirect('https://app.swaggerhub.com/apis/Andela42/FlaskAPI/1.0.0#/')
-
 @auth.app_errorhandler(404)
 def page_not_found(e):
     response = jsonify({'message':'Page not found!'})
     response.status_code = 404
     return response
 
+@auth.route('/')
 @auth.route('/auth/register', methods=['POST', 'GET'])
 def register():
     """ API POST user details, thus registering a user. """
