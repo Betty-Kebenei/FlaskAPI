@@ -103,7 +103,7 @@ def shoppinglists(user_id):
 def shoppinglists_management(user_id, list_id):
     """ API that GET, PUT and DELETE a shopping list. """
 
-    shoppinglist = ShoppingList.query.filter_by(created_by=user_id).filter(list_id==list_id).first()
+    shoppinglist = ShoppingList.query.filter_by(created_by=user_id, list_id=list_id).first()
     if shoppinglist:
         if request.method == "GET":
             response = jsonify({
