@@ -13,7 +13,6 @@ def page_not_found(e):
     response.status_code = 404
     return response
 
-@auth.route('/')
 @auth.route('/auth/register', methods=['POST', 'GET'])
 def register():
     """ API POST user details, thus registering a user. """
