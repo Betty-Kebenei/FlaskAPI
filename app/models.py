@@ -99,7 +99,7 @@ class ShoppingList(DB.Model):
     
     def delete(self):
         """ deletes shopping list """
-        DB.session.delete()
+        DB.session.delete(self)
         DB.session.commit()
 
     def __repr__(self):
