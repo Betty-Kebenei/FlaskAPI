@@ -46,7 +46,7 @@ class User(DB.Model):
             payload = {
                 'sub': user_id,
                 'iat': datetime.utcnow(),
-                'exp': datetime.utcnow() + timedelta(minutes=20)
+                'exp': datetime.utcnow() + timedelta(minutes=70)
             }
             jwt_string = jwt.encode(
                 payload,
@@ -112,15 +112,19 @@ class ShoppingItems(DB.Model):
 
     item_id = DB.Column(DB.Integer, primary_key=True)
     itemname = DB.Column(DB.String(50))
-    quantity = DB.Column(DB.String(50))
-    price = DB.Column(DB.Float)
+    quantity = DB.Column(DB.Float, nullable=True)
+    units = DB.Column(DB.String(50), nullable=True)
+    price = DB.Column(DB.Float, nullable=True)
+    currency = DB.Column(DB.String(50), nullable=True)
     item_for_list = DB.Column(DB.Integer, DB.ForeignKey(ShoppingList.list_id))
 
-    def __init__(self, itemname, quantity, price, item_for_list):
+    def __init__(self, itemname, quantity, units, price, currency, item_for_list):
         """ initilization """
         self.itemname = itemname
         self.quantity = quantity
+        self.units = units
         self.price = price
+        self.currency = currency
         self.item_for_list = item_for_list
 
     def save(self):
