@@ -13,6 +13,7 @@ def page_not_found(e):
     response.status_code = 404
     return response
 
+
 @auth.route('/auth/register', methods=['POST', 'GET'])
 def register():
     """ API POST user details, thus registering a user. """
@@ -109,10 +110,9 @@ def register():
 def login():
     """ API to login in. """
 
-    user = request.data['user']
+    user = User.query.filter_by(email=request.data['email']).first()
     password = request.data['password']
     if user and password:
-        user = User.query.filter_by(email=request.data['email']).first()
         if user.verify_password(password):
             access_token = user.encode_auth_token(user.user_id)
             if access_token:
