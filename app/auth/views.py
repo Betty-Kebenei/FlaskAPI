@@ -109,9 +109,10 @@ def register():
 def login():
     """ API to login in. """
 
-    user = User.query.filter_by(email=request.data['email']).first()
+    user = request.data['user']
     password = request.data['password']
     if user and password:
+        user = User.query.filter_by(email=request.data['email']).first()
         if user.verify_password(password):
             access_token = user.encode_auth_token(user.user_id)
             if access_token:
