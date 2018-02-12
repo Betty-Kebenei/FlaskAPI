@@ -2,6 +2,7 @@
 from config import APP_CONFIG
 from flask_api import FlaskAPI
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 # variable initializations
 DB = SQLAlchemy()
@@ -12,6 +13,7 @@ def create_app(config_name):
     app.config.from_object(APP_CONFIG[config_name])
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     DB.init_app(app)
+    CORS(app)
         
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
