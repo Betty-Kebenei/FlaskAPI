@@ -115,7 +115,7 @@ def shoppinglists_management(user_id, list_id):
         elif request.method == "PUT":
             listname = str(request.data.get('listname')).lower()
             shopping_lists = ShoppingList.query.filter_by(created_by=user_id).filter_by(listname=listname).first()
-            if shopping_lists:
+            if shopping_lists and shopping_lists.list_id != shoppinglist.list_id:
                 return {'message':'There exists a shopping list with such a name'}, 409
             else:
                 shoppinglist.listname = listname
@@ -124,7 +124,8 @@ def shoppinglists_management(user_id, list_id):
                     'list_id': shoppinglist.list_id,
                     'listname': shoppinglist.listname
                 })
-                return {'message':'shoppinglist with id {} successfully edited. '.format(shoppinglist.list_id)}, 200
+                response.status_code = 200
+                return response
         else:
             shoppinglist.delete()
             return {'message':'Shoppinglist with id {} successfully deleted'.format(shoppinglist.list_id)}, 200
@@ -135,7 +136,6 @@ def shoppinglists_management(user_id, list_id):
 @token_auth_required
 def shoppingitems(user_id, list_id):
     """ API that GET and POST items from/to a shopping list. """
-
     #Pagination arguments: Setting page to 1, then min_per_page to 20 and max_per_page to 100
     page = request.args.get('page', 1, type=int)
     limit = request.args.get('limit', 5, type=int)
@@ -147,9 +147,11 @@ def shoppingitems(user_id, list_id):
         if request.method == "POST":
             itemname = str(request.data['itemname']).lower()
             quantity = request.data.get('quantity')
+            units = request.data.get('units')
             price = request.data.get('price')
+            currency = request.data.get('currency')
             
-            if itemname and quantity and price:
+            if itemname:
                 if not re.match(r"(?=^.{3,}$)^[A-Za-z0-9_-]+( +[A-Za-z0-9_-]+)*$", itemname):
                     response = jsonify({
                                     'message':
@@ -157,17 +159,29 @@ def shoppingitems(user_id, list_id):
                                     })
                     response.status_code = 400
                     return response
-                if not re.match(r"(?=^.{1,}$)^[A-Za-z0-9_.-]+( +[A-Za-z0-9_-]+)*$", quantity):
+            else:
+                return {'mesaage': 'No itemname provided'}, 400 
+            if quantity:
+                if not re.match(r"^[0-9.]+$", quantity):
                     response = jsonify({
                                     'message':
-                                    'Quantity should contain letters, digits and spaces'
+                                    'Quantity should number with or without decimals'
                                     })
                     response.status_code = 400
                     return response
+            if units:
+                if not re.match(r"(?=^.{1,}$)^[A-Za-z]+( +[A-Za-z]+)*$", units):
+                    response = jsonify({
+                                    'message':
+                                    'Units should contain only letters.'
+                                    })
+                    response.status_code = 400
+                    return response
+            if price:
                 if not re.match(r"^[0-9.]+$", price):
                     response = jsonify({
                                     'message':
-                                    'price should number with or without decimals'
+                                    'Price should number with or without decimals'
                                     })
                     response.status_code = 400
                     return response
@@ -182,7 +196,9 @@ def shoppingitems(user_id, list_id):
                     shoppingitem = ShoppingItems(
                         itemname=itemname,
                         quantity=quantity,
+                        units=units,
                         price=price,
+                        currency=currency,
                         item_for_list=list_id
                         )
                     shoppingitem.save()
@@ -190,20 +206,15 @@ def shoppingitems(user_id, list_id):
                         'item_id' : shoppingitem.item_id,
                         'itemname' : shoppingitem.itemname,
                         'quantity' : shoppingitem.quantity,
+                        'units' : shoppingitem.units,
                         'price' : shoppingitem.price,
+                        'currency' : shoppingitem.currency,
                         'item_for_list': shoppingitem.item_for_list
                         })
                     return {
                             'message':
                             'shoppingitem with itemname {} successfully created. '
                             .format(shoppingitem.itemname)}, 201
-            else:
-                if not itemname:
-                    return {'mesaage': 'No itemname provided'}, 400 
-                elif not quantity:
-                    return {'mesaage': 'If there is no quantity to provided, key in 0'}, 400 
-                else:
-                    return {'mesaage': 'If there is no price to provided, key in 0'}, 400 
                     
         elif request.method == "GET": 
             results = []
@@ -226,24 +237,31 @@ def shoppingitems(user_id, list_id):
                 else:
                     next = None
 
-                for shoppingitem in shop_items:
-                    obj = {
-                        'item_id' : shoppingitem.item_id,
-                        'itemname' : shoppingitem.itemname,
-                        'quantity' : shoppingitem.quantity,
-                        'price' : shoppingitem.price
-                        }
-                    results.append(obj)
-                response = jsonify({
-                        'shoppingitems': results,
-                        'prev': prev,
-                        'next': next,
-                        'count': pagination.total
-                        })
-                response.status_code = 200
-                return response
-            else:
-                return {'message':'No items to display'}, 404
+                if shop_items:
+                    for shoppingitem in shop_items:
+                        obj = {
+                            'item_id' : shoppingitem.item_id,
+                            'itemname' : shoppingitem.itemname,
+                            'quantity' : shoppingitem.quantity,
+                            'units' : shoppingitem.units,
+                            'price' : shoppingitem.price,
+                            'currency' : shoppingitem.currency
+                            }
+                        results.append(obj)
+                    response = jsonify({
+                            'shoppingitems': results if results else "No items to display!",
+                            'prev': prev,
+                            'next': next,
+                            'count': pagination.total
+                            })
+                    response.status_code = 200
+                    return response
+                else:
+                    response = jsonify({
+                            'message':'No items to display!'})
+                    response.status_code = 404
+                    return response
+                    
         else:
             shopping_items = ShoppingItems.query.filter_by(item_for_list=list_id)
             if shopping_items:
@@ -272,21 +290,26 @@ def shoppingitems_management(user_id, list_id, item_id):
     if shoppinglist:
         shoppingitem = ShoppingItems.query.filter_by(item_for_list=list_id).filter_by(item_id=item_id).first()
         if shoppingitem:
+            print(shoppingitem.item_id)
             if request.method == 'GET':
                 response = jsonify({
-                    'item_id': shoppingitem.item_id,
-                    'itemname': shoppingitem.itemname,
-                    'quantity': shoppingitem.quantity,
-                    'price': shoppingitem.price
+                    'item_id' : shoppingitem.item_id,
+                    'itemname' : shoppingitem.itemname,
+                    'quantity' : shoppingitem.quantity,
+                    'units' : shoppingitem.units,
+                    'price' : shoppingitem.price,
+                    'currency' : shoppingitem.currency
                 })
                 response.status_code = 200
                 return response
             elif request.method == 'PUT':
                 itemname = str(request.data['itemname']).lower()
                 quantity = request.data.get('quantity')
+                units = request.data.get('units')
                 price = request.data.get('price')
+                currency = request.data.get('currency')
                 item = ShoppingItems.query.filter_by(item_for_list=list_id).filter_by(itemname=itemname).first()
-                if item:
+                if item and item.item_id != shoppingitem.item_id:
                     return {
                             'message':
                             'shoppingitem with that name already exists.'
@@ -294,13 +317,17 @@ def shoppingitems_management(user_id, list_id, item_id):
                 else:
                     shoppingitem.itemname = itemname
                     shoppingitem.quantity = quantity
+                    shoppingitem.units = units
                     shoppingitem.price = price
+                    shoppingitem.currency = currency
                     shoppingitem.save()
                     response = jsonify({
                         'item_id' : shoppingitem.item_id,
                         'itemname' : shoppingitem.itemname,
                         'quantity' : shoppingitem.quantity,
-                        'price' : shoppingitem.price
+                        'units' : shoppingitem.units,
+                        'price' : shoppingitem.price,
+                        'currency' : shoppingitem.currency,
                     })
                     return {
                             'message':
