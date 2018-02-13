@@ -98,7 +98,7 @@ def shoppinglists(user_id):
         else:
             return {'message':'No shopping lists to delete'}, 404 
 
-@home.route('/shoppinglists/<list_id>', methods=['GET', 'PUT', 'DELETE'])
+@home.route('/shoppinglists/<int: list_id>', methods=['GET', 'PUT', 'DELETE'])
 @token_auth_required
 def shoppinglists_management(user_id, list_id):
     """ API that GET, PUT and DELETE a shopping list. """
