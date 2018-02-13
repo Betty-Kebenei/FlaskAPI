@@ -127,7 +127,7 @@ def shoppinglists_management(user_id, list_id):
                 response.status_code = 200
                 return response
         else:
-            ShoppingList.delete(shoppinglist)
+            delete(shoppinglist)
             return {'message':'Shoppinglist with id {} successfully deleted'.format(shoppinglist.list_id)}, 200
     else:
         return {'messsage': 'There is no shopping list with that id'}, 404
