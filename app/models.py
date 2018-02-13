@@ -97,10 +97,10 @@ class ShoppingList(DB.Model):
         """ get all shopping lists """
         return ShoppingList.query.all()
     
-    # def delete(shoppinglist):
-    #     """ deletes shopping list """
-    #     DB.session.delete(shoppinglist)
-    #     DB.session.commit()
+    def delete(self):
+        """ deletes shopping list """
+        DB.session.delete(self)
+        DB.session.commit()
 
     def __repr__(self):
         return "<ShoppingList: {}>".format(self.listname)
