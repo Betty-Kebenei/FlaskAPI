@@ -127,12 +127,7 @@ def shoppinglists_management(user_id, list_id):
                 response.status_code = 200
                 return response
         else:
-            request.method == "GET":
-                response = jsonify({
-                    'list_id': shoppinglist.list_id,
-                    'listname': shoppinglist.listname
-                })
-            response.delete()
+            ShoppingList.delete(shoppinglist)
             return {'message':'Shoppinglist with id {} successfully deleted'.format(shoppinglist.list_id)}, 200
     else:
         return {'messsage': 'There is no shopping list with that id'}, 404
