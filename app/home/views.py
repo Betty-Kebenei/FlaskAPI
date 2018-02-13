@@ -98,7 +98,7 @@ def shoppinglists(user_id):
         else:
             return {'message':'No shopping lists to delete'}, 404 
 
-@home.route('/shoppinglists/<int:list_id>', methods=['GET', 'PUT', 'DELETE'])
+@home.route('/shoppinglists/<list_id>', methods=['GET', 'PUT', 'DELETE'])
 @token_auth_required
 def shoppinglists_management(user_id, list_id):
     """ API that GET, PUT and DELETE a shopping list. """
@@ -186,35 +186,35 @@ def shoppingitems(user_id, list_id):
                     response.status_code = 400
                     return response
 
-                item = ShoppingItems.query.filter_by(item_for_list=list_id).filter_by(itemname=itemname).first()
-                if item:
-                    return {
-                            'message':
-                            'shoppingitem with that name already exists.'
-                            }, 409 
-                else:
-                    shoppingitem = ShoppingItems(
-                        itemname=itemname,
-                        quantity=quantity,
-                        units=units,
-                        price=price,
-                        currency=currency,
-                        item_for_list=list_id
-                        )
-                    shoppingitem.save()
-                    response = jsonify({
-                        'item_id' : shoppingitem.item_id,
-                        'itemname' : shoppingitem.itemname,
-                        'quantity' : shoppingitem.quantity,
-                        'units' : shoppingitem.units,
-                        'price' : shoppingitem.price,
-                        'currency' : shoppingitem.currency,
-                        'item_for_list': shoppingitem.item_for_list
-                        })
-                    return {
-                            'message':
-                            'shoppingitem with itemname {} successfully created. '
-                            .format(shoppingitem.itemname)}, 201
+            item = ShoppingItems.query.filter_by(item_for_list=list_id).filter_by(itemname=itemname).first()
+            if item:
+                return {
+                        'message':
+                        'shoppingitem with that name already exists.'
+                        }, 409 
+            else:
+                shoppingitem = ShoppingItems(
+                    itemname=itemname,
+                    quantity=quantity,
+                    units=units,
+                    price=price,
+                    currency=currency,
+                    item_for_list=list_id
+                    )
+                shoppingitem.save()
+                response = jsonify({
+                    'item_id' : shoppingitem.item_id,
+                    'itemname' : shoppingitem.itemname,
+                    'quantity' : shoppingitem.quantity,
+                    'units' : shoppingitem.units,
+                    'price' : shoppingitem.price,
+                    'currency' : shoppingitem.currency,
+                    'item_for_list': shoppingitem.item_for_list
+                    })
+                return {
+                        'message':
+                        'shoppingitem with itemname {} successfully created. '
+                        .format(shoppingitem.itemname)}, 201
                     
         elif request.method == "GET": 
             results = []
