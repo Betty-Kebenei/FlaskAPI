@@ -128,10 +128,10 @@ def shoppinglists_management(user_id, list_id):
                 return response
         else:
             request.method == "GET":
-            response = jsonify({
-                'list_id': shoppinglist.list_id,
-                'listname': shoppinglist.listname
-            })
+                response = jsonify({
+                    'list_id': shoppinglist.list_id,
+                    'listname': shoppinglist.listname
+                })
             response.delete()
             return {'message':'Shoppinglist with id {} successfully deleted'.format(shoppinglist.list_id)}, 200
     else:
