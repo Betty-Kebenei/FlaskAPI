@@ -18,7 +18,7 @@ def token_auth_required(function):
             access_token = token[1]
             access_token = access_token.encode()
             if access_token:
-                blacklisted = BlacklistToken.query.filter_by(token=access_token).first()
+                blacklisted = BlacklistToken.query.filter(token==access_token).first()
                 if not blacklisted:
                     user_id = User.decode_auth_token(access_token)
                     if not isinstance(user_id, str):

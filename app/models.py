@@ -1,6 +1,6 @@
 from flask import current_app
 from app import DB
-from flask_bcrypt import Bcrypt
+from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 from datetime import datetime, timedelta
 
@@ -19,11 +19,11 @@ class User(DB.Model):
         """ initilization """
         self.username = username
         self.email = email
-        self.password = Bcrypt().generate_password_hash(password)
+        self.password = generate_password_hash(password)
 
     def verify_password(self, password):
         """Validate password during signin."""
-        return Bcrypt().check_password_hash(self.password, password)
+        return check_password_hash(self.password, password)
     
     def save(self):
         """ stores user to database """
